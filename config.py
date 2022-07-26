@@ -1,1 +1,4 @@
-screen_w, screen_h = 1280, 800
+win_width, win_height = 1280, 800
+win_bg_color = 'white'
+
+# ну тут объяснять нечего
