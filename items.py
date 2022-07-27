@@ -1,4 +1,6 @@
 import tkinter as tk
+from PIL import Image, ImageTk
+from config import images
 
 
 class CustomCanvas(tk.Canvas):
@@ -76,4 +78,15 @@ class Ingredient:
         self.canvas = canvas
         self.rarity = rarity
         self.level = level
-        self.canvas.create_rectangle(x, y, x + w, y + w, fill='red', tags=("token",))
+        self.background_image = ImageTk.PhotoImage(Image.open(images[self.rarity.lower()]).resize((w, w)))
+        self.canvas.create_image(x, y, image=self.background_image, anchor="nw", tags=("token",))
+
+
+class Button:
+    def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2, action):
+        self.action = action
+        # self.canvas = canvas
+
+
+    def run(self):
+        self.action()
