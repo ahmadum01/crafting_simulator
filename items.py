@@ -49,18 +49,24 @@ class CustomCanvas(tk.Canvas):
 class Inventory:
     def __init__(self, canvas: CustomCanvas,  x1, y1, x2, y2):
         self.canvas = canvas
-        self.canvas.create_rectangle(x1, y1, x2, y2)
+        self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
 
 
 class Laboratory:
     def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2):
         self.canvas = canvas
-        self.canvas.create_rectangle(x1, y1, x2, y2)
+        self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
 
 
 class InventorySlot:
-    def __init__(self):
-        pass
+    x1 = 40
+    y1 = 110
+    x2 = 320
+    y2 = 190
+
+    def __init__(self, canvas: CustomCanvas, x1=40, y1=110, x2=320, y2=190):
+        self.canvas = canvas
+        self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
 
 
 class CraftingSlot:
@@ -70,7 +76,7 @@ class CraftingSlot:
         self.y = y
         self.r = r
         self.main = main
-        self.canvas.create_oval(x - r, y - r, x + r, y + r)
+        self.canvas.create_oval(x - r, y - r, x + r, y + r, width=2)
 
 
 class Ingredient:
@@ -78,15 +84,21 @@ class Ingredient:
         self.canvas = canvas
         self.rarity = rarity
         self.level = level
+        self.default_coordinate = {'x': x, 'y': y}
         self.background_image = ImageTk.PhotoImage(Image.open(images[self.rarity.lower()]).resize((w, w)))
-        self.canvas.create_image(x, y, image=self.background_image, anchor="nw", tags=("token",))
+        self.shape = self.canvas.create_image(x, y, image=self.background_image, anchor="nw", tags=("token",))
+
+    def drag_stop(self, event):
+        pass
+
+    def check_move_to_back(self):
+        pass
 
 
 class Button:
     def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2, action):
         self.action = action
         # self.canvas = canvas
-
 
     def run(self):
         self.action()

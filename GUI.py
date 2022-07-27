@@ -3,10 +3,10 @@ from items import (
     CustomCanvas,
     Inventory,
     Laboratory,
-    Ingredient
+    Ingredient,
+    InventorySlot
 )
 from config import win_width, win_height, win_bg_color
-
 
 root = tk.Tk()
 root.geometry(f'{win_width}x{win_height}')
@@ -21,21 +21,5 @@ canvas.create_text(100, 50, text='Craft', fill='red', font='Tahoma 25')  # heade
 inventory = Inventory(canvas, 30, 100, 350, 750)
 laboratory = Laboratory(canvas, 370, 100, win_width - 30, 750)
 
-ingredient = Ingredient(
-    canvas=canvas,
-    x=40,
-    y=110,
-    w=70,
-    level=4,
-    rarity='E'
-)
-
-ingredient2 = Ingredient(
-    canvas=canvas,
-    x=40,
-    y=170,
-    w=70,
-    level=4,
-    rarity='A'
-)
+InventorySlot(canvas)
 
