@@ -10,6 +10,7 @@ class CustomCanvas(tk.Canvas):
         self.h = h
         self.bg = bg
 
+
         # this data is used to keep track of an
         # item being dragged
         self._drag_data = {"x": 0, "y": 0, "item": None}
@@ -19,6 +20,7 @@ class CustomCanvas(tk.Canvas):
         self.tag_bind("token", "<ButtonPress-1>", self.drag_start)
         self.tag_bind("token", "<ButtonRelease-1>", self.drag_stop)
         self.tag_bind("token", "<B1-Motion>", self.drag)
+
 
     def drag_start(self, event):
         """Beginning drag of an object"""
@@ -49,18 +51,20 @@ class CustomCanvas(tk.Canvas):
 class Inventory:
     def __init__(self, canvas: CustomCanvas,  x1, y1, x2, y2):
         self.canvas = canvas
-        self.canvas.create_rectangle(x1, y1, x2, y2)
+        self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
 
 
 class Laboratory:
     def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2):
         self.canvas = canvas
-        self.canvas.create_rectangle(x1, y1, x2, y2)
+        self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
 
 
 class InventorySlot:
-    def __init__(self):
-        pass
+    def __init__(self, canvas: CustomCanvas, x1=40, y1=110, x2=320, y2=190):
+        self.canvas = canvas
+        self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
+
 
 
 class CraftingSlot:
@@ -70,7 +74,7 @@ class CraftingSlot:
         self.y = y
         self.r = r
         self.main = main
-        self.canvas.create_oval(x - r, y - r, x + r, y + r)
+        self.canvas.create_oval(x - r, y - r, x + r, y + r, width=2)
 
 
 class Ingredient:
@@ -78,15 +82,30 @@ class Ingredient:
         self.canvas = canvas
         self.rarity = rarity
         self.level = level
+        self.default_coordinate = {'x': x, 'y': y}
         self.background_image = ImageTk.PhotoImage(Image.open(images[self.rarity.lower()]).resize((w, w)))
-        self.canvas.create_image(x, y, image=self.background_image, anchor="nw", tags=("token",))
+        self.shape = self.canvas.create_image(x, y, image=self.background_image, anchor="nw", tags=("token",))
+        self.canvas.tag_bind("token", "<ButtonRelease-1>", self.drag_stop)
+
+    def drag_stop(self, event):
+        self.canvas.drag_stop(event)
+        print(self.canvas.coords(self.shape))
 
 
 class Button:
-    def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2, action):
+    def __init__(self, canvas: CustomCanvas, x, y, w, h, text, action):
+        self.canvas = canvas
         self.action = action
-        # self.canvas = canvas
+        self.default_color = '#7785a4'
+        self.pressed_color = '#49536c'
+        self.shape = self.canvas.create_rectangle(x, y, x + w, y + h, fill=self.default_color, tags=("button",))
+        self.canvas.create_text(x + w / 2, y + h / 2, text='Craft', fill='white', font='Tahoma 17', tags=("button",))
+        self.canvas.tag_bind("button", "<ButtonPress-1>", self.button_pressed)
+        self.canvas.tag_bind("button", "<ButtonRelease-1>", self.button_released)
 
-
-    def run(self):
+    def button_pressed(self, event):
+        self.canvas.itemconfig(self.shape, fill=self.pressed_color, outline='yellow')
         self.action()
+
+    def button_released(self, event):
+        self.canvas.itemconfig(self.shape, fill=self.default_color, outline='yellow')
