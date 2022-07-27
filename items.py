@@ -62,8 +62,13 @@ class InventorySlot:
 
 
 class CraftingSlot:
-    def __init__(self):
-        pass
+    def __init__(self, canvas: CustomCanvas, x, y, r, main=False):
+        self.canvas = canvas
+        self.x = x
+        self.y = y
+        self.r = r
+        self.main = main
+        self.canvas.create_oval(x - r, y - r, x + r, y + r)
 
 
 class Ingredient:
@@ -71,8 +76,4 @@ class Ingredient:
         self.canvas = canvas
         self.rarity = rarity
         self.level = level
-        # self.x = x
-        # self.y = y
-        # self.w = w
-        self.canvas.create_rectangle(x, y, x + w, y + w, fill='red',tags=("token",))
-
+        self.canvas.create_rectangle(x, y, x + w, y + w, fill='red', tags=("token",))
