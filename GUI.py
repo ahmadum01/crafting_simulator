@@ -6,9 +6,8 @@ from items import (
     Ingredient,
     InventorySlot,
     Button,
-)
-from config import win_width, win_height, win_bg_color
 
+from config import win_width, win_height, win_bg_color
 
 root = tk.Tk()
 root.geometry(f'{win_width}x{win_height}')
@@ -23,22 +22,4 @@ canvas.create_text(100, 50, text='Craft', fill='red', font='Tahoma 25')  # heade
 inventory = Inventory(canvas, 30, 100, 350, 750)
 laboratory = Laboratory(canvas, 370, 100, win_width - 30, 750)
 button = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="Craft", action=lambda : print('Hello'))
-
-ingredient = Ingredient(
-    canvas=canvas,
-    x=40,
-    y=110,
-    w=70,
-    level=4,
-    rarity='E'
-)
-
-ingredient2 = Ingredient(
-    canvas=canvas,
-    x=40,
-    y=170,
-    w=70,
-    level=4,
-    rarity='A'
-)
 InventorySlot(canvas)
