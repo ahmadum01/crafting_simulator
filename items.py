@@ -18,18 +18,6 @@ class CustomCanvas(tk.Canvas):
         self.tag_bind("token", "<ButtonRelease-1>", self.drag_stop)
         self.tag_bind("token", "<B1-Motion>", self.drag)
 
-    def create_ingredient(self, x, y, color):
-        """Create a token at the given coordinate in the given color"""
-        self.create_oval(
-            x - 25,
-            y - 25,
-            x + 25,
-            y + 25,
-            outline=color,
-            fill=color,
-            tags=("token",),
-        )
-
     def drag_start(self, event):
         """Beginning drag of an object"""
         # record the item and its location
@@ -62,16 +50,29 @@ class Inventory:
         self.canvas.create_rectangle(x1, y1, x2, y2)
 
 
+class Laboratory:
+    def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2):
+        self.canvas = canvas
+        self.canvas.create_rectangle(x1, y1, x2, y2)
 
 
 class InventorySlot:
-    pass
+    def __init__(self):
+        pass
 
 
 class CraftingSlot:
-    pass
+    def __init__(self):
+        pass
 
 
-class Ingredients:
-    pass
+class Ingredient:
+    def __init__(self, canvas, rarity, level, x, y, w):
+        self.canvas = canvas
+        self.rarity = rarity
+        self.level = level
+        # self.x = x
+        # self.y = y
+        # self.w = w
+        self.canvas.create_rectangle(x, y, x + w, y + w, fill='red',tags=("token",))
 
