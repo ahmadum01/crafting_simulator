@@ -48,10 +48,69 @@ class CustomCanvas(tk.Canvas):
         self._drag_data["y"] = event.y
 
 
-class Inventory:
-    def __init__(self, canvas: CustomCanvas,  x1, y1, x2, y2):
+class InventoryBase:
+    elements = {}
+    action_elements = {}
+    slots = None
+    index = 1
+
+    @staticmethod
+    def init_data():
+        data_list = list(InventoryBase.elements.values())
+
+        for elem in InventoryBase.elements:
+            InventoryBase.action_elements[elem] = InventoryBase.elements[elem]
+            if len(InventoryBase.action_elements) == 6:
+                break
+        return InventoryBase
+
+    @staticmethod
+    def active_data(canvas: CustomCanvas):
+        for slot, elems in zip(InventoryBase.slots.values(), InventoryBase.action_elements.values()):
+            for elem in elems['elems']:
+                elem.x = slot.x1 + 10
+                elem.y = slot.y1 + 10
+                canvas.moveto(elem.shape, elem.x, elem.y)
+
+            slot.create_text(elems['level'], elems['rarity'], elems['amount'])
+
+
+class Inventory(InventoryBase):
+    def __init__(self, canvas: CustomCanvas,  x1=30, y1=100, x2=350, y2=750):
         self.canvas = canvas
         self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
+
+    def up(self):
+        for elem in InventoryBase.elements:
+            if elem not in InventoryBase.action_elements:
+                InventoryBase.action_elements[elem] = InventoryBase.elements[elem]
+                break
+
+        for elems in list(InventoryBase.action_elements.values()):
+            for elem in elems['elems']:
+                self.canvas.moveto(elem.shape, elem.x, elem.y)
+            break
+
+        for elem in InventoryBase.action_elements:
+            InventoryBase.action_elements.pop(elem)
+            break
+
+        # TODO: popitem() delete last item
+
+    def down(self):
+        for elem in InventoryBase.elements:
+            if elem not in InventoryBase.action_elements:
+                InventoryBase.action_elements[elem] = InventoryBase.elements[elem]
+                break
+
+        for elems in InventoryBase.action_elements.values():
+            for elem in elems['elems']:
+                self.canvas.moveto(elem.shape, elem.x, elem.y)
+            break
+
+        for elem in InventoryBase.action_elements:
+            InventoryBase.action_elements.pop(elem)
+            break
 
 
 class Laboratory:
@@ -60,11 +119,17 @@ class Laboratory:
         self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
 
 
-class InventorySlot:
-    def __init__(self, canvas: CustomCanvas, x1=40, y1=110, x2=320, y2=190):
+class InventorySlot(InventoryBase):
+    def __init__(self, canvas: CustomCanvas, x1=55, y1=110, x2=320, y2=190):
+        self.x1 = x1
+        self.y1 = y1
         self.canvas = canvas
         self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
 
+    def create_text(self, level, rarity, amount):
+        self.canvas.create_text(self.x1 + 150, self.y1 + 45,
+                                text=f'Level: {level}\nRarity: {rarity}\nAmount: {amount}',
+                                font='Tahoma 14')
 
 
 class CraftingSlot:
@@ -77,20 +142,28 @@ class CraftingSlot:
         self.canvas.create_oval(x - r, y - r, x + r, y + r, width=2)
 
 
-class Ingredient:
-    def __init__(self, canvas, rarity, level, x, y, w):
+class Ingredient(InventoryBase):
+    def __init__(self, canvas: CustomCanvas, rarity, level, x=-100, y=-100, w=70):
+        self.x = x
+        self.y = y
         self.canvas = canvas
         self.rarity = rarity
         self.level = level
-        self.default_coordinate = {'x': x, 'y': y}
+        self.default_coordinate = {'x': x, 'y': y}  # TODO: it seems useless
         self.background_image = ImageTk.PhotoImage(Image.open(images[self.rarity.lower()]).resize((w, w)))
         self.shape = self.canvas.create_image(x, y, image=self.background_image, anchor="nw", tags=("token",))
         self.canvas.tag_bind("token", "<ButtonRelease-1>", self.drag_stop)
+        if f'{level}{rarity}' not in InventoryBase.elements:
+            InventoryBase.elements[f'{level}{rarity}'] = {'elems': [], 'rarity': rarity, 'amount': 0, 'level': level}
+        InventoryBase.elements[f'{level}{rarity}']['amount'] += 1
+        InventoryBase.elements[f'{level}{rarity}']['elems'].append(self)
+
+    def check_move_to_back(self):
+        self.canvas.moveto(self.shape, self.x, self.y)
 
     def drag_stop(self, event):
+        self.check_move_to_back()
         self.canvas.drag_stop(event)
-        print(self.canvas.coords(self.shape))
-
 
 
 class Button:
