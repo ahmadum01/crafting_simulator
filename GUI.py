@@ -29,18 +29,9 @@ inventory = Inventory(canvas, 30, 100, 350, 750)
 laboratory = Laboratory(canvas, 370, 100, win_width - 30, 750)
 
 
-
-
-button_up = tk.Button(root, width=30, height=1, text="Up", command=inventory.up)
-button_up.pack()
-button_down = tk.Button(root, width=30, text="Down", command=inventory.down)
-button_down.pack()
-canvas.create_window((53, 100), anchor=tk.NW, window=button_up)
-canvas.create_window((53, 720), anchor=tk.NW, window=button_down)
-
 button = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="Craft", action=lambda : print('Hello'))
-# button2 = Button(canvas, x=win_width - 400, y=win_height - 100, w=100, h=40, text="Craft", action=lambda : print('left button'))
-InventorySlot(canvas)
+button_up = Button(canvas, x=325, y=100, w=25, h=50, text="ᐱ", action=lambda: print('ᐱ'))
+button_down = Button(canvas, x=325, y=win_height - 100, w=25, h=50, text="ᐯ", action=lambda: print('ᐯ'))
 
 main_slot = CraftingSlot(
     canvas,

@@ -177,12 +177,10 @@ class Ingredient(InventoryBase):
             InventoryBase.elements[f'{level}{rarity}'] = {'elems': [], 'rarity': rarity, 'amount': 0, 'level': level}
         InventoryBase.elements[f'{level}{rarity}']['amount'] += 1
         InventoryBase.elements[f'{level}{rarity}']['elems'].append(self)
-  
-    
+
     def check_move_to_back(self):
         self.canvas.moveto(self.shape, self.x, self.y)
-        
-        
+
     def intersects(self, slot):
         x, y = self.canvas.coords(self.shape)
         return ((slot.x - x) ** 2 + (slot.y - y) ** 2) ** 0.5 <= slot.r + self.r
@@ -190,10 +188,7 @@ class Ingredient(InventoryBase):
     def equals(self, other):
         return other.level == self.level and other.rarity == self.rarity
 
-
     def drag_stop(self, event):
-        self.check_move_to_back()
-        self.canvas.drag_stop(event)
 
         for crafting_slot in CraftingSlot.slots:
             if crafting_slot.main:
@@ -212,8 +207,13 @@ class Ingredient(InventoryBase):
                 except ValueError:
                     pass
                 # self.move_to_slot()
+
         for indicator in Indicator.indicators:
             indicator.set_state()
+        self.canvas.drag_stop(event)
+
+
+
 
     def move_to_slot(self):
         self.canvas.moveto(self.shape, self.slot.x - self.r, self.slot.y - self.r)
