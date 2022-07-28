@@ -7,7 +7,8 @@ from items import (
     InventorySlot,
     InventoryBase,
     Button,
-    CraftingSlot
+    CraftingSlot,
+    Indicator
 )
 
 
@@ -55,12 +56,20 @@ left_slot = CraftingSlot(
     y=main_slot.y,
     r=60,
 )
+left_indicator = Indicator(
+    canvas,
+    slot=left_slot,
+)
 
 right_slot = CraftingSlot(
     canvas,
     x=main_slot.x + 250,
     y=main_slot.y,
     r=60,
+)
+right_indicator = Indicator(
+    canvas,
+    slot=right_slot,
 )
 
 bottom_slot = CraftingSlot(
@@ -70,7 +79,14 @@ bottom_slot = CraftingSlot(
     r=60,
 )
 
+bottom_indicator = Indicator(
+    canvas,
+    slot=bottom_slot,
+)
+
 ings = [
+    ('A', 1), ('A', 1),
+    ('A', 1), ('A', 1),
     ('A', 1), ('A', 1),
     ('A', 3), ('C', 3),
     ('B', 2), ('B', 4),

@@ -199,18 +199,21 @@ class Ingredient(InventoryBase):
             if crafting_slot.main:
                 continue
             if self.intersects(crafting_slot) and \
-                    (not crafting_slot.ingredients or self.equals(crafting_slot.ingredients[0])):
+                    (not crafting_slot.ingredients or self.equals(crafting_slot.ingredients[0])) and \
+                    len(crafting_slot.ingredients) < 5:
                 self.slot = crafting_slot
                 if self not in crafting_slot.ingredients:
                     crafting_slot.ingredients.append(self)
                 self.move_to_slot()
             else:
-                self.slot = None # Надо сюда передавать слот инвентаря
+                self.slot = None  # Надо сюда передавать слот инвентаря
                 try:
                     crafting_slot.ingredients.remove(self)
                 except ValueError:
                     pass
                 # self.move_to_slot()
+        for indicator in Indicator.indicators:
+            indicator.set_state()
 
     def move_to_slot(self):
         self.canvas.moveto(self.shape, self.slot.x - self.r, self.slot.y - self.r)
@@ -243,7 +246,28 @@ class Button:
 
 
 class Indicator:
+    indicators = []
+
     """Индикатор заполненности слота крафтинга"""
-    def __init__(self):
+    def __init__(self, canvas: CustomCanvas, slot):
+        self.canvas = canvas
         self.state = 0
-        self.slot = None
+        self.slot: CraftingSlot = slot
+        self.w = 100
+        self.h = 20
+        self.padding = 30
+        self.x1 = slot.x - self.w/2
+        self.y1 = slot.y + slot.r + self.padding
+        self.x2 = slot.x + self.w / 2
+        self.y2 = slot.y + self.slot.r + self.padding + self.h
+        self.shape = self.canvas.create_rectangle(self.x1, self.y1, self.x2, self.y2, fill='white')
+        self.inner_shape = self.canvas.create_rectangle(self.x1 + 1, self.y1 + 1, self.x1, self.y1, fill='green', outline='')
+        self.indicators.append(self)
+
+    def set_state(self):
+        self.state = len(self.slot.ingredients)
+        self.canvas.coords(self.inner_shape, self.x1 + 1, self.y1 + 1, self.x1 + (self.w / 5) * self.state, self.y2)
+
+
+
+# def craft():
