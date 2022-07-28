@@ -38,7 +38,7 @@ button_down = Button(canvas, x=325, y=win_height - 100, w=25, h=50, text="ᐯ", 
 main_slot = CraftingSlot(
     canvas,
     x=laboratory.x1 + (laboratory.x2 - laboratory.x1) / 2,
-    y=laboratory.y1 + (laboratory.y2 - laboratory.y1) / 2 - 60,
+    y=laboratory.y1 + (laboratory.y2 - laboratory.y1) / 2 - 100,
     r=100,
     main=True
 )

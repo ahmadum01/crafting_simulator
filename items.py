@@ -142,6 +142,7 @@ class InventorySlot(InventoryBase):
                                 text=f'Level: {level}\nRarity: {rarity}\nAmount: {amount}',
                                 font='Tahoma 14')
 
+
 class CraftingSlot:
     slots = []
 
@@ -152,8 +153,16 @@ class CraftingSlot:
         self.r = r
         self.main = main
         self.shape = self.canvas.create_oval(x - r, y - r, x + r, y + r, width=2, fill='#2f185c')
+        self.text = self.canvas.create_text(self.x, self.y + self.r * 1.55, text='', font='Tahoma 10')
         self.ingredients = []
         self.slots.append(self)
+
+    def set_text(self):
+        text = ''
+        if self.ingredients:
+            text = f'Level: {self.ingredients[0].level}\n'\
+                   f'Rarity: {self.ingredients[0].rarity}\n'
+        self.canvas.itemconfig(self.text, text=text)
 
 
 class Ingredient(InventoryBase):
@@ -199,8 +208,8 @@ class Ingredient(InventoryBase):
                 self.slot = crafting_slot
                 if self not in crafting_slot.ingredients:
                     crafting_slot.ingredients.append(self)
-
                 self.move_to_slot()
+                crafting_slot.set_text()
                 break
             else:
                 self.slot = None
@@ -208,13 +217,13 @@ class Ingredient(InventoryBase):
                     crafting_slot.ingredients.remove(self)
                 except ValueError:
                     pass
+            crafting_slot.set_text()
         else:
             self.move_to_slot()
             
         for indicator in Indicator.indicators:
             indicator.set_state()
         self.canvas.drag_stop(event)
-
 
     def move_to_slot(self):
         if self.slot is None:
@@ -260,7 +269,7 @@ class Indicator:
         self.slot: CraftingSlot = slot
         self.w = 100
         self.h = 20
-        self.padding = 30
+        self.padding = 50
         self.x1 = slot.x - self.w/2
         self.y1 = slot.y + slot.r + self.padding
         self.x2 = slot.x + self.w / 2
