@@ -84,18 +84,25 @@ class InventoryBase:
         Для того чтобы, скрыть действенные элементы из инвентаря необходимо передать параметр active=False
         TODO: работает криво, нужно что-то предпринять:), работаю над этим.
         """
+        if len(InventoryBase.elements) < 6:
+            for key in range(6, len(InventoryBase.elements), -1):
+                InventoryBase.slots[key].flag = False
         for slot, elems in zip(InventoryBase.slots.values(), InventoryBase.action_elements):
             for elem in elems['elems']:
                 if elem.slot is None:
                     if active:
+                        slot.flag = True
                         elem.x = slot.x1 + 10
                         elem.y = slot.y1 + 10
                     else:
                         elem.x = -100
                         elem.y = -100
                     canvas.moveto(elem.shape, elem.x, elem.y)
-            if active:
+            if slot.flag:
                 slot.set_text(elems['level'], elems['rarity'], elems['amount'])
+        for slot in InventoryBase.slots.values():
+            if not slot.flag:
+                slot.set_text()
 
     @staticmethod
     def remove_empty_elements():
@@ -105,14 +112,18 @@ class InventoryBase:
 
     @staticmethod
     def remove_ingredient(element: 'Ingredient', canvas: CustomCanvas):
-        print(InventoryBase.action_elements)
         for elem_dict in InventoryBase.elements:
             if elem_dict['level'] == element.level and elem_dict['rarity'] == element.rarity:
                 elem_dict['elems'].remove(element)
                 break
 
         InventoryBase.remove_empty_elements()
-        InventoryBase.action_elements = InventoryBase.elements[InventoryBase.index:InventoryBase.index+6]
+        if len(InventoryBase.elements) <= 6:
+            InventoryBase.action_elements = InventoryBase.elements
+        else:
+            if InventoryBase.index - 1 != -1:
+                InventoryBase.index -= 1
+            InventoryBase.action_elements = InventoryBase.elements[InventoryBase.index:InventoryBase.index+6]
         InventoryBase.show_slot_content(canvas)
 
 
@@ -129,7 +140,7 @@ class Inventory(InventoryBase):
             InventoryBase.show_slot_content(canvas=self.canvas)
 
     def down(self):
-        if InventoryBase.index + 6 != len(InventoryBase.elements):
+        if InventoryBase.index + 6 < len(InventoryBase.elements):
             InventoryBase.index += 1
             InventoryBase.show_slot_content(canvas=self.canvas, active=False)
             InventoryBase.action_elements = InventoryBase.elements[Inventory.index: Inventory.index + 6]
@@ -153,12 +164,13 @@ class InventorySlot(InventoryBase):
         self.canvas = canvas
         self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
         self.text = self.canvas.create_text(self.x1 + 150, self.y1 + 45, text='', font='Tahoma 14')
-        self.ingredient = ''
+        self.flag = False
 
-    def set_text(self, lvl, rarity, amount):
-        text = f'Level: {lvl}\nRarity: {rarity}\nAmount: {amount}'
+    def set_text(self, lvl='', rarity='', amount=''):
+        text = ''
+        if self.flag:
+            text += f'Level: {lvl}\n Rarity: {rarity}\n Amount: {amount}'
         self.canvas.itemconfig(self.text, text=text)
-
 
 
 class CraftingSlot:
