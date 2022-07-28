@@ -29,10 +29,9 @@ inventory = Inventory(canvas, 30, 100, 350, 750)
 laboratory = Laboratory(canvas, 370, 100, win_width - 30, 750)
 
 
-
 button = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="Craft", action=lambda : print('Hello'))
-button_up = Button(canvas, x=325, y=100, w=25, h=50, text="ᐱ", action=lambda: print('ᐱ'))
-button_down = Button(canvas, x=325, y=win_height - 100, w=25, h=50, text="ᐯ", action=lambda: print('ᐯ'))
+button_up = Button(canvas, x=325, y=100, w=25, h=50, text="ᐱ", action=inventory.up)
+button_down = Button(canvas, x=325, y=win_height - 100, w=25, h=50, text="ᐯ", action=inventory.down)
 
 
 main_slot = CraftingSlot(
@@ -84,6 +83,9 @@ ings = [
     ('A', 3), ('C', 3),
     ('B', 2), ('B', 4),
     ('E', 1), ('D', 1),
+    ('D', 3), ('C', 3),
+    ('A', 2), ('B', 5),
+    ('E', 4), ('D', 2),
 
 ]
 
@@ -96,7 +98,7 @@ for i, ing in enumerate(ings):
     
 # after created ingredients
 InventoryBase.slots = {i//100: InventorySlot(canvas=canvas, y1=i, y2=i+90) for i in range(130, 700, 100)}
-InventoryBase.init_data().active_data(canvas=canvas)
+InventoryBase.init_data().show_slot_content(canvas=canvas)
 
 def test():
     print('\n' * 10 + '-' * 20)

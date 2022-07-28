@@ -56,68 +56,69 @@ class CustomCanvas(tk.Canvas):
 
 
 class InventoryBase:
+    """
+    elements - при создании ингредиентов служит как словарь, а при инициализации данных преобразуется в список и в
+    дальнейшем служит как список ингредиентов. Примерная структура: [{'elems': [], 'level': 1, 'rarity': A}, {}, {}]
+
+    action_elements - список содержащий активные элементы в слотах инвентаря, необходим для показа определенного
+    количества элементов в инвентаре. 1ый элемент списка находится в 1ом слоте инвентаря и т.д.
+
+    slots - словарь содержащий информацию о слотах, ключами являются номера слотов, а значениями объекты Класса
+    "InventorySlot"
+
+    index - необходим для прокрутки инвентаря, взаимодействие происходит в дочернем классе "Inventory"
+    """
     elements = {}
-    action_elements = {}
+    action_elements = []
     slots = None
-    index = 1
+    index = 0
 
     @staticmethod
     def init_data():
-        data_list = list(InventoryBase.elements.values())
-
-        for elem in InventoryBase.elements:
-            InventoryBase.action_elements[elem] = InventoryBase.elements[elem]
-            if len(InventoryBase.action_elements) == 6:
-                break
+        """Вызывается один раз при запуске, необходим для первоначальной инициализации данных"""
+        InventoryBase.elements = list(InventoryBase.elements.values())
+        InventoryBase.action_elements = InventoryBase.elements[:6]
         return InventoryBase
 
     @staticmethod
-    def active_data(canvas: CustomCanvas):
-        for slot, elems in zip(InventoryBase.slots.values(), InventoryBase.action_elements.values()):
+    def show_slot_content(canvas: CustomCanvas, active=True):
+        """Для показа/скрытия ингредиентов в инвентаре
+        Параметр "active" служит для контролирования показа/скрытия ингредиентов инвентаря
+        Для того чтобы, скрыть действенные элементы из инвентаря необходимо передать параметр active=False
+        TODO: работает криво, нужно что-то предпринять:), работаю над этим.
+        """
+        for slot, elems in zip(InventoryBase.slots.values(), InventoryBase.action_elements):
             for elem in elems['elems']:
-                elem.x = slot.x1 + 10
-                elem.y = slot.y1 + 10
-                canvas.moveto(elem.shape, elem.x, elem.y)
-
-            slot.create_text(elems['level'], elems['rarity'], elems['amount'])
+                if elem.slot is None:
+                    if active:
+                        elem.x = slot.x1 + 10
+                        elem.y = slot.y1 + 10
+                    else:
+                        elem.x = -100
+                        elem.y = -100
+                    canvas.moveto(elem.shape, elem.x, elem.y)
+            if active:
+                slot.set_text(elems['level'], elems['rarity'], elems['amount'])
 
 
 class Inventory(InventoryBase):
-    def __init__(self, canvas: CustomCanvas,  x1=30, y1=100, x2=350, y2=750):
+    def __init__(self, canvas: CustomCanvas, x1=30, y1=100, x2=350, y2=750):
         self.canvas = canvas
         self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
 
     def up(self):
-        for elem in InventoryBase.elements:
-            if elem not in InventoryBase.action_elements:
-                InventoryBase.action_elements[elem] = InventoryBase.elements[elem]
-                break
-
-        for elems in list(InventoryBase.action_elements.values()):
-            for elem in elems['elems']:
-                self.canvas.moveto(elem.shape, elem.x, elem.y)
-            break
-
-        for elem in InventoryBase.action_elements:
-            InventoryBase.action_elements.pop(elem)
-            break
-
-        # TODO: popitem() delete last item
+        if InventoryBase.index - 1 != -1:
+            InventoryBase.index -= 1
+            InventoryBase.show_slot_content(canvas=self.canvas, active=False)
+            InventoryBase.action_elements = InventoryBase.elements[Inventory.index: Inventory.index + 6]
+            InventoryBase.show_slot_content(canvas=self.canvas)
 
     def down(self):
-        for elem in InventoryBase.elements:
-            if elem not in InventoryBase.action_elements:
-                InventoryBase.action_elements[elem] = InventoryBase.elements[elem]
-                break
-
-        for elems in InventoryBase.action_elements.values():
-            for elem in elems['elems']:
-                self.canvas.moveto(elem.shape, elem.x, elem.y)
-            break
-
-        for elem in InventoryBase.action_elements:
-            InventoryBase.action_elements.pop(elem)
-            break
+        if InventoryBase.index + 6 != len(InventoryBase.elements):
+            InventoryBase.index += 1
+            InventoryBase.show_slot_content(canvas=self.canvas, active=False)
+            InventoryBase.action_elements = InventoryBase.elements[Inventory.index: Inventory.index + 6]
+            InventoryBase.show_slot_content(canvas=self.canvas)
 
 
 class Laboratory:
@@ -136,11 +137,13 @@ class InventorySlot(InventoryBase):
         self.y1 = y1
         self.canvas = canvas
         self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
+        self.text = self.canvas.create_text(self.x1 + 150, self.y1 + 45, text='', font='Tahoma 14')
+        self.ingredient = ''
 
-    def create_text(self, level, rarity, amount):
-        self.canvas.create_text(self.x1 + 150, self.y1 + 45,
-                                text=f'Level: {level}\nRarity: {rarity}\nAmount: {amount}',
-                                font='Tahoma 14')
+    def set_text(self, lvl, rarity, amount):
+        text = f'Level: {lvl}\nRarity: {rarity}\nAmount: {amount}'
+        self.canvas.itemconfig(self.text, text=text)
+
 
 class CraftingSlot:
     slots = []
@@ -169,7 +172,7 @@ class Ingredient(InventoryBase):
         self.slot = None
         self.background_image = ImageTk.PhotoImage(Image.open(images[self.rarity.lower()]).resize((r * 2, r * 2)))
         tag = f"token{self.counter[0]}"
-        self.shape = self.canvas.create_image(x, y, image=self.background_image, anchor=tk.CENTER, tags=(tag, ), )
+        self.shape = self.canvas.create_image(x, y, image=self.background_image, anchor=tk.CENTER, tags=(tag,), )
         self.canvas.bind_ingredient(tag)
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop, "+")
         self.counter[0] += 1
@@ -210,11 +213,10 @@ class Ingredient(InventoryBase):
                     pass
         else:
             self.move_to_slot()
-            
+
         for indicator in Indicator.indicators:
             indicator.set_state()
         self.canvas.drag_stop(event)
-
 
     def move_to_slot(self):
         if self.slot is None:
@@ -254,6 +256,7 @@ class Indicator:
     indicators = []
 
     """Индикатор заполненности слота крафтинга"""
+
     def __init__(self, canvas: CustomCanvas, slot):
         self.canvas = canvas
         self.state = 0
@@ -261,18 +264,17 @@ class Indicator:
         self.w = 100
         self.h = 20
         self.padding = 30
-        self.x1 = slot.x - self.w/2
+        self.x1 = slot.x - self.w / 2
         self.y1 = slot.y + slot.r + self.padding
         self.x2 = slot.x + self.w / 2
         self.y2 = slot.y + self.slot.r + self.padding + self.h
         self.shape = self.canvas.create_rectangle(self.x1, self.y1, self.x2, self.y2, fill='white')
-        self.inner_shape = self.canvas.create_rectangle(self.x1 + 1, self.y1 + 1, self.x1, self.y1, fill='green', outline='')
+        self.inner_shape = self.canvas.create_rectangle(self.x1 + 1, self.y1 + 1, self.x1, self.y1, fill='green',
+                                                        outline='')
         self.indicators.append(self)
 
     def set_state(self):
         self.state = len(self.slot.ingredients)
         self.canvas.coords(self.inner_shape, self.x1 + 1, self.y1 + 1, self.x1 + (self.w / 5) * self.state, self.y2)
-
-
 
 # def craft():
