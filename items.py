@@ -150,20 +150,19 @@ class Button:
         self.action = action
         self.default_color = '#7785a4'
         self.pressed_color = '#49536c'
-
         tag = f'button{self.counter[0]}'
         self.shape = self.canvas.create_rectangle(x, y, x + w, y + h, fill=self.default_color, tags=(tag,))
-        self.canvas.create_text(x + w / 2, y + h / 2, text='Craft', fill='white', font='Tahoma 17', tags=(tag,))
+        self.canvas.create_text(x + w / 2, y + h / 2, text=text, fill='white', font='Tahoma 17', tags=(tag,))
         self.canvas.tag_bind(tag, "<ButtonPress-1>", self.button_pressed)
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.button_released)
         self.counter[0] += 1
 
     def button_pressed(self, event):
-        self.canvas.itemconfig(self.shape, fill=self.pressed_color, outline='yellow')
+        self.canvas.itemconfig(self.shape, fill=self.pressed_color)
         self.action()
 
     def button_released(self, event):
-        self.canvas.itemconfig(self.shape, fill=self.default_color, outline='yellow')
+        self.canvas.itemconfig(self.shape, fill=self.default_color)
 
 
 class Indicator:
