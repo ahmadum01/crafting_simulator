@@ -160,8 +160,8 @@ class Ingredient(InventoryBase):
     counter = [0]
 
     def __init__(self, canvas: CustomCanvas, rarity, level, x=-100, y=-100, r=35):
-        self.x = x
-        self.y = y
+        self.x = x + r
+        self.y = y + r
         self.r = r
         self.canvas = canvas
         self.rarity = rarity
@@ -189,8 +189,8 @@ class Ingredient(InventoryBase):
         return other.level == self.level and other.rarity == self.rarity
 
     def drag_stop(self, event):
-
         for crafting_slot in CraftingSlot.slots:
+
             if crafting_slot.main:
                 continue
             if self.intersects(crafting_slot) and \
@@ -199,24 +199,29 @@ class Ingredient(InventoryBase):
                 self.slot = crafting_slot
                 if self not in crafting_slot.ingredients:
                     crafting_slot.ingredients.append(self)
+
                 self.move_to_slot()
+                break
             else:
-                self.slot = None  # Надо сюда передавать слот инвентаря
+                self.slot = None
                 try:
                     crafting_slot.ingredients.remove(self)
                 except ValueError:
                     pass
-                # self.move_to_slot()
-
+        else:
+            self.move_to_slot()
+            
         for indicator in Indicator.indicators:
             indicator.set_state()
         self.canvas.drag_stop(event)
 
 
-
-
     def move_to_slot(self):
-        self.canvas.moveto(self.shape, self.slot.x - self.r, self.slot.y - self.r)
+        if self.slot is None:
+            self.canvas.moveto(self.shape, self.x, self.y)
+            # pass
+        else:
+            self.canvas.moveto(self.shape, self.slot.x - self.r, self.slot.y - self.r)
 
     def __repr__(self):
         return f'Ing({self.rarity} {self.level})'

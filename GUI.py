@@ -29,9 +29,11 @@ inventory = Inventory(canvas, 30, 100, 350, 750)
 laboratory = Laboratory(canvas, 370, 100, win_width - 30, 750)
 
 
+
 button = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="Craft", action=lambda : print('Hello'))
 button_up = Button(canvas, x=325, y=100, w=25, h=50, text="ᐱ", action=lambda: print('ᐱ'))
 button_down = Button(canvas, x=325, y=win_height - 100, w=25, h=50, text="ᐯ", action=lambda: print('ᐯ'))
+
 
 main_slot = CraftingSlot(
     canvas,
