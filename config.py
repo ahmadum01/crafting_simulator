@@ -1,5 +1,5 @@
 win_width, win_height = 1280, 800
-win_bg_color = 'white'
+win_bg_color = 'white'  # '#403c44'
 
 image_path = 'src/images/'
 images = {
