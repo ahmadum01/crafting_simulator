@@ -88,4 +88,4 @@ for i, ing in enumerate(ings):
 # after created ingredients
 
 InventoryBase.slots = {i // 100: InventorySlot(canvas=canvas, y1=i, y2=i + 90) for i in range(130, 700, 100)}
-InventoryBase.init_data().active_data(canvas=canvas)
+InventoryBase.init_data().show_slot_content(canvas=canvas)

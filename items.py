@@ -97,6 +97,17 @@ class InventoryBase:
             if active:
                 slot.set_text(elems['level'], elems['rarity'], elems['amount'])
 
+    @staticmethod
+    def remove_ingredient(element: 'Ingredient', canvas: CustomCanvas):
+        for elem_dict in InventoryBase.elements:
+            if elem_dict['level'] == element.level and elem_dict['rarity'] == element.rarity:
+
+                elem_dict['elems'].remove(element)
+                break
+        InventoryBase.action_elements = InventoryBase.elements[InventoryBase.index:InventoryBase.index+6]
+
+        InventoryBase.show_slot_content(canvas)
+
 
 class Inventory(InventoryBase):
     def __init__(self, canvas: CustomCanvas, x1=30, y1=100, x2=350, y2=750):
@@ -292,6 +303,7 @@ def craft(canvas: CustomCanvas, slots):
             continue
         for ingredient in slot.ingredients:
             canvas.delete(ingredient.shape)
+            InventoryBase.remove_ingredient(ingredient, canvas)
         slot.ingredients.clear()
         slot.set_text()
         slot.indicator.set_state()
