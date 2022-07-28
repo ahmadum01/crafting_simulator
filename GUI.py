@@ -5,9 +5,11 @@ from items import (
     Laboratory,
     Ingredient,
     InventorySlot,
+    InventoryBase,
     Button,
     CraftingSlot
 )
+
 
 from config import win_width, win_height, win_bg_color
 
@@ -24,6 +26,17 @@ canvas.create_text(100, 50, text='Craft', fill='red', font='Tahoma 30')  # heade
 canvas.create_text(500, 150, text='Laboratory', fill='red', font='Tahoma 25')  # laboratory header
 inventory = Inventory(canvas, 30, 100, 350, 750)
 laboratory = Laboratory(canvas, 370, 100, win_width - 30, 750)
+
+
+
+
+button_up = tk.Button(root, width=30, height=1, text="Up", command=inventory.up)
+button_up.pack()
+button_down = tk.Button(root, width=30, text="Down", command=inventory.down)
+button_down.pack()
+canvas.create_window((53, 100), anchor=tk.NW, window=button_up)
+canvas.create_window((53, 720), anchor=tk.NW, window=button_down)
+
 button = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="Craft", action=lambda : print('Hello'))
 # button2 = Button(canvas, x=win_width - 400, y=win_height - 100, w=100, h=40, text="Craft", action=lambda : print('left button'))
 InventorySlot(canvas)
@@ -68,13 +81,13 @@ ings = [
 for i, ing in enumerate(ings):
     Ingredient(
         canvas=canvas,
-        x=70,
-        y=110 + i * 60,
-        r=35,
         level=ing[1],
         rarity=ing[0],
     )
-
+    
+# after created ingredients
+InventoryBase.slots = {i//100: InventorySlot(canvas=canvas, y1=i, y2=i+90) for i in range(130, 700, 100)}
+InventoryBase.init_data().active_data(canvas=canvas)
 
 def test():
     print('\n' * 10 + '-' * 20)
