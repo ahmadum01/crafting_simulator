@@ -32,7 +32,6 @@ class CustomCanvas(tk.Canvas):
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y
         self.lift(self._drag_data["item"])
-        # print('start')
 
     def drag_stop(self, event):
         """End drag of an object"""
@@ -40,7 +39,6 @@ class CustomCanvas(tk.Canvas):
         self._drag_data["item"] = None
         self._drag_data["x"] = 0
         self._drag_data["y"] = 0
-        # print('drop')
 
     def drag(self, event):
         """Handle dragging of an object"""
@@ -52,7 +50,6 @@ class CustomCanvas(tk.Canvas):
         # record the new position
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y
-        # print('drag')
 
 
 class InventoryBase:
@@ -154,6 +151,8 @@ class CraftingSlot:
         self.main = main
         self.shape = self.canvas.create_oval(x - r, y - r, x + r, y + r, width=2, fill='#2f185c')
         self.text = self.canvas.create_text(self.x, self.y + self.r * 1.55, text='', font='Tahoma 10')
+        if not main:
+            self.indicator = Indicator(canvas, self)
         self.ingredients = []
         self.slots.append(self)
 
@@ -176,9 +175,9 @@ class Ingredient(InventoryBase):
         self.rarity = rarity
         self.level = level
         self.slot = None
-        self.background_image = ImageTk.PhotoImage(Image.open(images[self.rarity.lower()]).resize((r * 2, r * 2)))
+        self.image = ImageTk.PhotoImage(Image.open(images[self.rarity.lower()]).resize((r * 2, r * 2)))
         tag = f"token{self.counter[0]}"
-        self.shape = self.canvas.create_image(x, y, image=self.background_image, anchor=tk.CENTER, tags=(tag, ), )
+        self.shape = self.canvas.create_image(x, y, image=self.image, anchor=tk.CENTER, tags=(tag, ), )
         self.canvas.bind_ingredient(tag)
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop, "+")
         self.counter[0] += 1
@@ -199,7 +198,6 @@ class Ingredient(InventoryBase):
 
     def drag_stop(self, event):
         for crafting_slot in CraftingSlot.slots:
-
             if crafting_slot.main:
                 continue
             if self.intersects(crafting_slot) and \
@@ -210,6 +208,7 @@ class Ingredient(InventoryBase):
                     crafting_slot.ingredients.append(self)
                 self.move_to_slot()
                 crafting_slot.set_text()
+                crafting_slot.indicator.set_state()
                 break
             else:
                 self.slot = None
@@ -218,11 +217,10 @@ class Ingredient(InventoryBase):
                 except ValueError:
                     pass
             crafting_slot.set_text()
+            crafting_slot.indicator.set_state()
         else:
             self.move_to_slot()
-            
-        for indicator in Indicator.indicators:
-            indicator.set_state()
+
         self.canvas.drag_stop(event)
 
     def move_to_slot(self):
@@ -233,7 +231,7 @@ class Ingredient(InventoryBase):
             self.canvas.moveto(self.shape, self.slot.x - self.r, self.slot.y - self.r)
 
     def __repr__(self):
-        return f'Ing({self.rarity} {self.level})'
+        return f'Ing({self.rarity} {self.level}{id(self)})'
 
 
 class Button:
@@ -260,9 +258,9 @@ class Button:
 
 
 class Indicator:
+    """Индикатор заполненности слота крафтинга"""
     indicators = []
 
-    """Индикатор заполненности слота крафтинга"""
     def __init__(self, canvas: CustomCanvas, slot):
         self.canvas = canvas
         self.state = 0
@@ -283,5 +281,12 @@ class Indicator:
         self.canvas.coords(self.inner_shape, self.x1 + 1, self.y1 + 1, self.x1 + (self.w / 5) * self.state, self.y2)
 
 
-
-# def craft():
+def craft(canvas: CustomCanvas, slots):
+    for slot in slots:
+        if slot.main:
+            continue
+        for ingredient in slot.ingredients:
+            canvas.delete(ingredient.shape)
+        slot.ingredients.clear()
+        slot.set_text()
+        slot.indicator.set_state()
