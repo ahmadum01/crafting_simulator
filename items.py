@@ -188,7 +188,6 @@ class Ingredient(InventoryBase):
     def equals(self, other):
         return other.level == self.level and other.rarity == self.rarity
 
-
     def drag_stop(self, event):
         for crafting_slot in CraftingSlot.slots:
 
@@ -211,6 +210,7 @@ class Ingredient(InventoryBase):
                     pass
         else:
             self.move_to_slot()
+            
         for indicator in Indicator.indicators:
             indicator.set_state()
         self.canvas.drag_stop(event)
