@@ -98,14 +98,21 @@ class InventoryBase:
                 slot.set_text(elems['level'], elems['rarity'], elems['amount'])
 
     @staticmethod
+    def remove_empty_elements():
+        for element in InventoryBase.elements:
+            if not element['elems']:
+                InventoryBase.elements.remove(element)
+
+    @staticmethod
     def remove_ingredient(element: 'Ingredient', canvas: CustomCanvas):
+        print(InventoryBase.action_elements)
         for elem_dict in InventoryBase.elements:
             if elem_dict['level'] == element.level and elem_dict['rarity'] == element.rarity:
-
                 elem_dict['elems'].remove(element)
                 break
-        InventoryBase.action_elements = InventoryBase.elements[InventoryBase.index:InventoryBase.index+6]
 
+        InventoryBase.remove_empty_elements()
+        InventoryBase.action_elements = InventoryBase.elements[InventoryBase.index:InventoryBase.index+6]
         InventoryBase.show_slot_content(canvas)
 
 
