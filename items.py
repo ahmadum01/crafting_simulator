@@ -180,6 +180,8 @@ class InventorySlot(InventoryBase):
         self.canvas = canvas
         self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
         self.text = self.canvas.create_text(self.x1 + 150, self.y1 + 45, text='', font='Tahoma 14')
+        self.flag = False
+
 
     def set_text(self, lvl='', rarity='', amount=''):
         text = ''
@@ -230,10 +232,10 @@ class Ingredient(InventoryBase):
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop, "+")
 
         Ingredient.counter += 1
-        if f'{level}{rarity}' not in InventoryBase.elements:
-            InventoryBase.elements[f'{level}{rarity}'] = {'elems': [], 'rarity': rarity, 'amount': 0, 'level': level}
-        InventoryBase.elements[f'{level}{rarity}']['amount'] += 1
-        InventoryBase.elements[f'{level}{rarity}']['elems'].append(self)
+        if f'{rarity}{level}' not in InventoryBase.elements:
+            InventoryBase.elements[f'{rarity}{level}'] = {'elems': [], 'rarity': rarity, 'amount': 0, 'level': level}
+        InventoryBase.elements[f'{rarity}{level}']['amount'] += 1
+        InventoryBase.elements[f'{rarity}{level}']['elems'].append(self)
 
     def check_move_to_back(self):
         self.canvas.moveto(self.shape, self.x, self.y)
