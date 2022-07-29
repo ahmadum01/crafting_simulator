@@ -215,7 +215,6 @@ class CraftingSlot:
 
 class Ingredient(InventoryBase):
     counter = [0]
-    ingredients = {''}
 
     def __init__(self, canvas: CustomCanvas, rarity, level, x=-100, y=-100, r=35):
         self.x = x + r
