@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from config import images, win_bg_color
+import craft.crafting as crafting
 
 
 class CustomCanvas(tk.Canvas):
@@ -55,16 +56,15 @@ class InventoryBase:
     """
     elements = {}
     action_elements = []
-    dict_elements = {}
+    list_elements = []
     slots = None
     index = 0
 
     @staticmethod
     def init_data():
         """Вызывается один раз при запуске, необходим для первоначальной инициализации данных"""
-        InventoryBase.dict_elements = InventoryBase.elements
-        InventoryBase.elements = list(InventoryBase.elements.values())
-        InventoryBase.action_elements = InventoryBase.elements[:6]
+        InventoryBase.list_elements = list(InventoryBase.elements.values())
+        InventoryBase.action_elements = InventoryBase.list_elements[:6]
         return InventoryBase
 
     @staticmethod
@@ -73,8 +73,8 @@ class InventoryBase:
         Параметр "active" служит для контролирования показа/скрытия ингредиентов инвентаря
         Для того чтобы, скрыть действенные элементы из инвентаря необходимо передать параметр active=False
         """
-        if len(InventoryBase.elements) < 6:
-            for key in range(6, len(InventoryBase.elements), -1):
+        if len(InventoryBase.list_elements) < 6:
+            for key in range(6, len(InventoryBase.list_elements), -1):
                 InventoryBase.slots[key].flag = False
         for slot, elems in zip(InventoryBase.slots.values(), InventoryBase.action_elements):
             for elem in elems['elems']:
@@ -95,23 +95,23 @@ class InventoryBase:
 
     @staticmethod
     def remove_empty_elements():
-        for element in InventoryBase.elements:
+        for element in InventoryBase.list_elements:
             if not element['elems']:
-                InventoryBase.elements.remove(element)
+                InventoryBase.list_elements.remove(element)
 
     @staticmethod
     def remove_ingredient(element: 'Ingredient', canvas: CustomCanvas):
-        InventoryBase.dict_elements[f'{element.rarity}{element.level}']['elems'].remove(element)
+        InventoryBase.elements[f'{element.rarity}{element.level}']['elems'].remove(element)
 
         InventoryBase.remove_empty_elements()
 
-        if len(InventoryBase.elements) <= 6:
-            InventoryBase.action_elements = InventoryBase.elements
+        if len(InventoryBase.list_elements) <= 6:
+            InventoryBase.action_elements = InventoryBase.list_elements
         else:
             if InventoryBase.index - 1 != -1:
                 InventoryBase.index -= 1
 
-            InventoryBase.action_elements = InventoryBase.elements[InventoryBase.index:InventoryBase.index + 6]
+            InventoryBase.action_elements = InventoryBase.list_elements[InventoryBase.index:InventoryBase.index + 6]
 
         InventoryBase.show_slot_content(canvas)
 
@@ -119,9 +119,9 @@ class InventoryBase:
     # TODO: works crookedly, in development
     def edit_amount(canvas: CustomCanvas, elem: 'Ingredient', option=False):
         if option:
-            InventoryBase.dict_elements[f'{elem.rarity}{elem.level}']['amount'] += 1
+            InventoryBase.elements[f'{elem.rarity}{elem.level}']['amount'] += 1
         else:
-            InventoryBase.dict_elements[f'{elem.rarity}{elem.level}']['amount'] -= 1
+            InventoryBase.elements[f'{elem.rarity}{elem.level}']['amount'] -= 1
 
         InventoryBase.show_slot_content(canvas=canvas)
 
@@ -142,14 +142,14 @@ class Inventory(InventoryBase):
         if InventoryBase.index - 1 != -1:
             InventoryBase.index -= 1
             InventoryBase.show_slot_content(canvas=self.canvas, active=False)
-            InventoryBase.action_elements = InventoryBase.elements[Inventory.index: Inventory.index + 6]
+            InventoryBase.action_elements = InventoryBase.list_elements[Inventory.index: Inventory.index + 6]
             InventoryBase.show_slot_content(canvas=self.canvas)
 
     def down(self):
-        if InventoryBase.index + 6 < len(InventoryBase.elements):
+        if InventoryBase.index + 6 < len(InventoryBase.list_elements):
             InventoryBase.index += 1
             InventoryBase.show_slot_content(canvas=self.canvas, active=False)
-            InventoryBase.action_elements = InventoryBase.elements[Inventory.index: Inventory.index + 6]
+            InventoryBase.action_elements = InventoryBase.list_elements[Inventory.index: Inventory.index + 6]
             InventoryBase.show_slot_content(canvas=self.canvas)
 
 
@@ -330,6 +330,16 @@ class Indicator:
 
 
 def craft(canvas: CustomCanvas, slots):
+    crafting.Craft.init_slots(
+        crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[1].ingredients]),
+        crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[1].ingredients]),
+        crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[1].ingredients]),
+    )
+    crafted_ingredient = crafting.Craft.craft()
+    new_ingredient = Ingredient(canvas, rarity=crafted_ingredient.rarity, level=crafted_ingredient.level)
+    new_ingredient.slot = slots[0]
+    new_ingredient.move_to_slot()
+    slots[0].ingredients = [new_ingredient]
     for slot in slots:
         if slot.main:
             continue

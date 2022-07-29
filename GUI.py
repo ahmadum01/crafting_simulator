@@ -21,17 +21,17 @@ root['bg'] = win_bg_color
 canvas = CustomCanvas(root, win_width, win_height)
 canvas.place(x=-1, y=-1)
 
-canvas.create_text(100, 50, text='Craft', fill='red', font='Tahoma 30')  # header
+canvas.create_text(100, 50, text='craft', fill='red', font='Tahoma 30')  # header
 canvas.create_text(500, 150, text='Laboratory', fill='red', font='Tahoma 25')  # laboratory header
 inventory = Inventory(canvas, 30, 100, 350, 750)
 laboratory = Laboratory(canvas, 370, 100, win_width - 30, 750)
 
 
 
-button = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="Craft", action=lambda : print('Hello'))
+button = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="craft", action=lambda : print('Hello'))
 
 
-button = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="Craft",
+button = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="craft",
                 action=lambda: craft(canvas, CraftingSlot.slots))
 button_up = Button(canvas, x=325, y=100, w=25, h=50, text="ᐱ", action=inventory.up)
 button_down = Button(canvas, x=325, y=win_height - 100, w=25, h=50, text="ᐯ", action=inventory.down)
@@ -75,7 +75,8 @@ serum_slot = SerumSlot(
 )
 
 ings = [
-    ('A', 1),
+    ('A', 1), ('A', 1),
+    ('A', 1), ('A', 1),
     ('A', 3), ('C', 3),
     ('B', 2), ('B', 4),
     ('E', 1), ('D', 1),
