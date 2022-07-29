@@ -164,7 +164,6 @@ class InventorySlot(InventoryBase):
         self.canvas = canvas
         self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
         self.text = self.canvas.create_text(self.x1 + 150, self.y1 + 45, text='', font='Tahoma 14')
-        self.flag = False
 
     def set_text(self, lvl='', rarity='', amount=''):
         text = ''
