@@ -198,7 +198,7 @@ class CraftingSlot:
 
 
 class Ingredient(InventoryBase):
-    counter = [0]
+    counter = 0
 
     def __init__(self, canvas: CustomCanvas, rarity, level, x=-100, y=-100, r=35):
         self.x = x + r
@@ -209,11 +209,11 @@ class Ingredient(InventoryBase):
         self.level = level
         self.slot = None
         self.image = ImageTk.PhotoImage(Image.open(images[self.rarity.lower()]).resize((r * 2, r * 2)))
-        tag = f"token{self.counter[0]}"
+        tag = f"token{Ingredient.counter}"
         self.shape = self.canvas.create_image(x, y, image=self.image, anchor=tk.CENTER, tags=(tag, ), )
         self.canvas.bind_ingredient(tag)
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop, "+")
-        self.counter[0] += 1
+        Ingredient.counter += 1
         if f'{level}{rarity}' not in InventoryBase.elements:
             InventoryBase.elements[f'{level}{rarity}'] = {'elems': [], 'rarity': rarity, 'amount': 0, 'level': level}
         InventoryBase.elements[f'{level}{rarity}']['amount'] += 1
@@ -256,7 +256,6 @@ class Ingredient(InventoryBase):
 
         self.canvas.drag_stop(event)
 
-
     def move_to_slot(self):
         if self.slot is None:
             self.canvas.moveto(self.shape, self.x, self.y)
@@ -269,19 +268,19 @@ class Ingredient(InventoryBase):
 
 
 class Button:
-    counter = [0]
+    counter = 0
 
     def __init__(self, canvas: CustomCanvas, x, y, w, h, text, action):
         self.canvas = canvas
         self.action = action
         self.default_color = '#7785a4'
         self.pressed_color = '#49536c'
-        tag = f'button{self.counter[0]}'
+        tag = f'button{Button.counter}'
         self.shape = self.canvas.create_rectangle(x, y, x + w, y + h, fill=self.default_color, tags=(tag,))
         self.canvas.create_text(x + w / 2, y + h / 2, text=text, fill='white', font='Tahoma 17', tags=(tag,))
         self.canvas.tag_bind(tag, "<ButtonPress-1>", self.button_pressed)
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.button_released)
-        self.counter[0] += 1
+        Button.counter += 1
 
     def button_pressed(self, event):
         self.canvas.itemconfig(self.shape, fill=self.pressed_color)
@@ -309,7 +308,7 @@ class Indicator:
         self.shape = self.canvas.create_rectangle(self.x1, self.y1, self.x2, self.y2, fill='white')
         self.inner_shape = self.canvas.create_rectangle(self.x1 + 1, self.y1 + 1, self.x1, self.y1, fill='green',
                                                         outline='')
-        self.indicators.append(self)
+        Indicator.indicators.append(self)
 
     def set_state(self):
         self.state = len(self.slot.ingredients)
