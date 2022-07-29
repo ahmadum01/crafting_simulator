@@ -8,6 +8,7 @@ from items import (
     InventoryBase,
     Button,
     CraftingSlot,
+    SerumSlot,
     craft,
 )
 from config import win_width, win_height, win_bg_color
@@ -63,6 +64,14 @@ bottom_slot = CraftingSlot(
     x=main_slot.x,
     y=main_slot.y + 250,
     r=60,
+)
+
+serum_slot = SerumSlot(
+    canvas,
+    x1=win_width-250,
+    y1=100,
+    x2=win_width-30,
+    y2=200
 )
 
 ings = [

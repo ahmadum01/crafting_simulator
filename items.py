@@ -3,22 +3,13 @@ from PIL import Image, ImageTk
 from config import images, win_bg_color
 
 
-# from objects import CRAFTING_SLOTS
-
-
 class CustomCanvas(tk.Canvas):
     def __init__(self, parent, w, h, bg=win_bg_color):
         super().__init__(parent, width=w, height=h, bg=bg)
         self.w = w
         self.h = h
         self.bg = bg
-
-        # this data is used to keep track of an
-        # item being dragged
         self._drag_data = {"x": 0, "y": 0, "item": None}
-
-        # add bindings for clicking, dragging and releasing over
-        # any object with the "token" tag
 
     def bind_ingredient(self, tag_name, ):
         self.tag_bind(tag_name, "<ButtonPress-1>", self.drag_start)
@@ -27,7 +18,6 @@ class CustomCanvas(tk.Canvas):
 
     def drag_start(self, event):
         """Beginning drag of an object"""
-        # record the item and its location
         self._drag_data["item"] = self.find_closest(event.x, event.y)[0]
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y
@@ -35,19 +25,15 @@ class CustomCanvas(tk.Canvas):
 
     def drag_stop(self, event):
         """End drag of an object"""
-        # reset the drag information
         self._drag_data["item"] = None
         self._drag_data["x"] = 0
         self._drag_data["y"] = 0
 
     def drag(self, event):
         """Handle dragging of an object"""
-        # compute how much the mouse has moved
         delta_x = event.x - self._drag_data["x"]
         delta_y = event.y - self._drag_data["y"]
-        # move the object the appropriate amount
         self.move(self._drag_data["item"], delta_x, delta_y)
-        # record the new position
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y
 
@@ -64,6 +50,8 @@ class InventoryBase:
     "InventorySlot"
 
     index - необходим для прокрутки инвентаря, взаимодействие происходит в дочернем классе "Inventory"
+
+    dict_elements - словарь содержащий информацию об ингридиентах, копия словаря "elements" см. выше.
     """
     elements = {}
     action_elements = []
@@ -122,7 +110,9 @@ class InventoryBase:
         else:
             if InventoryBase.index - 1 != -1:
                 InventoryBase.index -= 1
-            InventoryBase.action_elements = InventoryBase.elements[InventoryBase.index:InventoryBase.index+6]
+
+            InventoryBase.action_elements = InventoryBase.elements[InventoryBase.index:InventoryBase.index + 6]
+
         InventoryBase.show_slot_content(canvas)
 
     @staticmethod
@@ -174,14 +164,13 @@ class Laboratory:
 
 
 class InventorySlot(InventoryBase):
-    def __init__(self, canvas: CustomCanvas, x1=55, y1=110, x2=320, y2=190):
+    def __init__(self, canvas: CustomCanvas, x1=55, y1=110, x2=320, y2=190, r=35):
         self.x1 = x1
         self.y1 = y1
         self.canvas = canvas
         self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
         self.text = self.canvas.create_text(self.x1 + 150, self.y1 + 45, text='', font='Tahoma 14')
         self.flag = False
-
 
     def set_text(self, lvl='', rarity='', amount=''):
         text = ''
@@ -199,7 +188,7 @@ class CraftingSlot:
         self.y = y
         self.r = r
         self.main = main
-        self.shape = self.canvas.create_oval(x - r, y - r, x + r, y + r, width=2, fill='#2f185c')
+        self.shape = self.canvas.create_oval(x - r, y - r, x + r, y + r, width=2, fill='#3914AF')
         self.text = self.canvas.create_text(self.x, self.y + self.r * 1.55, text='', font='Tahoma 10')
         if not main:
             self.indicator = Indicator(canvas, self)
@@ -209,9 +198,15 @@ class CraftingSlot:
     def set_text(self):
         text = ''
         if self.ingredients:
-            text = f'Level: {self.ingredients[0].level}\n'\
+            text = f'Level: {self.ingredients[0].level}\n' \
                    f'Rarity: {self.ingredients[0].rarity}\n'
         self.canvas.itemconfig(self.text, text=text)
+
+
+class SerumSlot:
+    def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2):
+        self.canvas = canvas
+        self.shape = self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
 
 
 class Ingredient(InventoryBase):
@@ -227,10 +222,9 @@ class Ingredient(InventoryBase):
         self.slot = None
         self.image = ImageTk.PhotoImage(Image.open(images[self.rarity.lower()]).resize((r * 2, r * 2)))
         tag = f"token{Ingredient.counter}"
-        self.shape = self.canvas.create_image(x, y, image=self.image, anchor=tk.CENTER, tags=(tag, ), )
+        self.shape = self.canvas.create_image(x, y, image=self.image, anchor=tk.CENTER, tags=(tag,), )
         self.canvas.bind_ingredient(tag)
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop, "+")
-
         Ingredient.counter += 1
         if f'{rarity}{level}' not in InventoryBase.elements:
             InventoryBase.elements[f'{rarity}{level}'] = {'elems': [], 'rarity': rarity, 'amount': 0, 'level': level}
@@ -280,7 +274,6 @@ class Ingredient(InventoryBase):
     def move_to_slot(self):
         if self.slot is None:
             self.canvas.moveto(self.shape, self.x, self.y)
-            # pass
         else:
             self.canvas.moveto(self.shape, self.slot.x - self.r, self.slot.y - self.r)
 
