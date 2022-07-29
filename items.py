@@ -67,12 +67,14 @@ class InventoryBase:
     """
     elements = {}
     action_elements = []
+    dict_elements = {}
     slots = None
     index = 0
 
     @staticmethod
     def init_data():
         """Вызывается один раз при запуске, необходим для первоначальной инициализации данных"""
+        InventoryBase.dict_elements = InventoryBase.elements
         InventoryBase.elements = list(InventoryBase.elements.values())
         InventoryBase.action_elements = InventoryBase.elements[:6]
         return InventoryBase
@@ -82,7 +84,6 @@ class InventoryBase:
         """Для показа/скрытия ингредиентов в инвентаре
         Параметр "active" служит для контролирования показа/скрытия ингредиентов инвентаря
         Для того чтобы, скрыть действенные элементы из инвентаря необходимо передать параметр active=False
-        TODO: работает криво, нужно что-то предпринять:), работаю над этим.
         """
         if len(InventoryBase.elements) < 6:
             for key in range(6, len(InventoryBase.elements), -1):
@@ -112,12 +113,10 @@ class InventoryBase:
 
     @staticmethod
     def remove_ingredient(element: 'Ingredient', canvas: CustomCanvas):
-        for elem_dict in InventoryBase.elements:
-            if elem_dict['level'] == element.level and elem_dict['rarity'] == element.rarity:
-                elem_dict['elems'].remove(element)
-                break
+        InventoryBase.dict_elements[f'{element.rarity}{element.level}']['elems'].remove(element)
 
         InventoryBase.remove_empty_elements()
+
         if len(InventoryBase.elements) <= 6:
             InventoryBase.action_elements = InventoryBase.elements
         else:
@@ -125,6 +124,23 @@ class InventoryBase:
                 InventoryBase.index -= 1
             InventoryBase.action_elements = InventoryBase.elements[InventoryBase.index:InventoryBase.index+6]
         InventoryBase.show_slot_content(canvas)
+
+    @staticmethod
+    # TODO: works crookedly, in development
+    def edit_amount(canvas: CustomCanvas, elem: 'Ingredient', option=False):
+        if option:
+            InventoryBase.dict_elements[f'{elem.rarity}{elem.level}']['amount'] += 1
+        else:
+            InventoryBase.dict_elements[f'{elem.rarity}{elem.level}']['amount'] -= 1
+
+        InventoryBase.show_slot_content(canvas=canvas)
+
+    @staticmethod
+    def check_in_action_elements(elem: 'Ingredient'):
+        l = [f'{elem["rarity"]}{elem["level"]}' for elem in InventoryBase.action_elements]
+        if f'{elem.rarity}{elem.level}' not in l:
+            elem.x = -100
+            elem.y = -100
 
 
 class Inventory(InventoryBase):
@@ -168,7 +184,7 @@ class InventorySlot(InventoryBase):
     def set_text(self, lvl='', rarity='', amount=''):
         text = ''
         if self.flag:
-            text += f'Level: {lvl}\n Rarity: {rarity}\n Amount: {amount}'
+            text += f'Level: {lvl}\nRarity: {rarity}\nAmount: {amount}'
         self.canvas.itemconfig(self.text, text=text)
 
 
@@ -212,6 +228,7 @@ class Ingredient(InventoryBase):
         self.shape = self.canvas.create_image(x, y, image=self.image, anchor=tk.CENTER, tags=(tag, ), )
         self.canvas.bind_ingredient(tag)
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop, "+")
+
         Ingredient.counter += 1
         if f'{level}{rarity}' not in InventoryBase.elements:
             InventoryBase.elements[f'{level}{rarity}'] = {'elems': [], 'rarity': rarity, 'amount': 0, 'level': level}
@@ -238,6 +255,7 @@ class Ingredient(InventoryBase):
                 self.slot = crafting_slot
                 if self not in crafting_slot.ingredients:
                     crafting_slot.ingredients.append(self)
+                    InventoryBase.edit_amount(canvas=self.canvas, elem=self)
                 self.move_to_slot()
                 crafting_slot.set_text()
                 crafting_slot.indicator.set_state()
@@ -246,6 +264,8 @@ class Ingredient(InventoryBase):
                 self.slot = None
                 try:
                     crafting_slot.ingredients.remove(self)
+                    InventoryBase.check_in_action_elements(elem=self)
+                    InventoryBase.edit_amount(canvas=self.canvas, elem=self, option=True)
                 except ValueError:
                     pass
             crafting_slot.set_text()
@@ -263,7 +283,7 @@ class Ingredient(InventoryBase):
             self.canvas.moveto(self.shape, self.slot.x - self.r, self.slot.y - self.r)
 
     def __repr__(self):
-        return f'Ing({self.rarity} {self.level}{id(self)})'
+        return f'Ing({self.rarity}{self.level} {id(self)})'
 
 
 class Button:
