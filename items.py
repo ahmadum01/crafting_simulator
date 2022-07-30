@@ -60,10 +60,10 @@ class InventoryBase:
     index = 0
 
     @staticmethod
-    def init_data():
-        """Вызывается один раз при запуске, необходим для первоначальной инициализации данных"""
+    def init_or_update_data():
+        """Вызывается для инициализации/обновления данных"""
         InventoryBase.list_elements = list(InventoryBase.elements.values())
-        InventoryBase.action_elements = InventoryBase.list_elements[:6]
+        InventoryBase.action_elements = InventoryBase.list_elements[InventoryBase.index: InventoryBase.index+6]
         return InventoryBase
 
     @staticmethod
@@ -93,16 +93,15 @@ class InventoryBase:
                 slot.set_text()
 
     @staticmethod
-    def remove_empty_elements():
-        for element in InventoryBase.list_elements:
-            if not element['elems']:
-                InventoryBase.list_elements.remove(element)
+    def remove_empty_elements(element: 'Ingredient'):
+        if not InventoryBase.elements[f'{element.rarity}{element.level}']['elems']:
+            InventoryBase.elements.pop(f'{element.rarity}{element.level}')
 
     @staticmethod
     def remove_ingredient(element: 'Ingredient', canvas: CustomCanvas):
         InventoryBase.elements[f'{element.rarity}{element.level}']['elems'].remove(element)
 
-        InventoryBase.remove_empty_elements()
+        InventoryBase.remove_empty_elements(element)
 
         if len(InventoryBase.list_elements) <= 6:
             InventoryBase.action_elements = InventoryBase.list_elements
@@ -356,3 +355,5 @@ def craft(canvas: CustomCanvas, slots):
         slot.set_text()
         slot.indicator.set_state()
 
+    InventoryBase.init_or_update_data()
+    InventoryBase.show_slot_content(canvas=canvas)
