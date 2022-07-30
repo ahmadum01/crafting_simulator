@@ -121,7 +121,7 @@ class Craft:
             return 'There are empty slots'
 
         if not Craft.is_craft_possible():
-            return 'Fail chance is 100 percent'
+            return 'Fail chance is 100 percents'
 
         fail_chance = Craft.count_fail_chance()
 

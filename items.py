@@ -189,6 +189,8 @@ class CraftingSlot:
         self.text = self.canvas.create_text(self.x, self.y + self.r * 1.55, text='', font='Tahoma 10')
         if not main:
             self.indicator = Indicator(canvas, self)
+        elif main:
+            self.text_message = self.canvas.create_text(self.x, self.y - 15, text='', font='Tahoma 16', fill='red')
         self.ingredients = []
         self.slots.append(self)
 
@@ -198,6 +200,9 @@ class CraftingSlot:
             text = f'Level: {self.ingredients[0].level}\n' \
                    f'Rarity: {self.ingredients[0].rarity}\n'
         self.canvas.itemconfig(self.text, text=text)
+
+    def text_message_main_slot(self, text=''):
+        self.canvas.itemconfig(self.text_message, text=text)
 
 
 class SerumSlot:
@@ -252,6 +257,7 @@ class Ingredient(InventoryBase):
                 self.move_to_slot()
                 crafting_slot.set_text()
                 crafting_slot.indicator.set_state()
+                CraftingSlot.slots[0].text_message_main_slot()
                 break
             else:
                 self.slot = None
@@ -259,11 +265,13 @@ class Ingredient(InventoryBase):
                     crafting_slot.ingredients.remove(self)
                     InventoryBase.check_in_action_elements(elem=self)
                     InventoryBase.edit_amount(canvas=self.canvas, elem=self, option=True)
+                    CraftingSlot.slots[0].text_message_main_slot()
                 except ValueError:
                     pass
             crafting_slot.set_text()
             if not crafting_slot.main:
                 crafting_slot.indicator.set_state()
+
         else:
             self.move_to_slot()
 
@@ -335,7 +343,7 @@ def craft(canvas: CustomCanvas, slots):
     )
     # if crafting
 
-    print(f'Fail chance: {crafting.Craft.count_fail_chance()}')
+    # print(f'Fail chance: {crafting.Craft.count_fail_chance()}')
     crafted_ingredient = crafting.Craft.craft()
     print(crafted_ingredient)
     if isinstance(crafted_ingredient, crafting.Ingredient):
@@ -356,5 +364,13 @@ def craft(canvas: CustomCanvas, slots):
             slot.set_text()
             slot.indicator.set_state()
 
+        slots[0].text_message_main_slot()
         InventoryBase.init_or_update_data()
         InventoryBase.show_slot_content(canvas=canvas)
+        if isinstance(crafted_ingredient, str) and crafted_ingredient == 'Fail':
+            slots[0].text_message_main_slot(crafted_ingredient)
+    else:
+        if crafted_ingredient != 'There are empty slots':
+            slots[0].text_message_main_slot(text='   Fail chance \nis 100 percents')
+        else:
+            slots[0].text_message_main_slot('Slots are empty')
