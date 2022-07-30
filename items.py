@@ -204,6 +204,15 @@ class CraftingSlot:
     def text_message_main_slot(self, text=''):
         self.canvas.itemconfig(self.text_message, text=text)
 
+    @staticmethod
+    def update_slots_data():
+        """Обновляем все индикаторы, тексты и т.д."""
+        for slot in CraftingSlot.slots:  #
+            if not slot.main:
+                slot.set_text()
+                slot.indicator.set_state()
+                slot.slots[0].text_message_main_slot()
+
 
 class SerumSlot:
     def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2):
@@ -243,38 +252,35 @@ class Ingredient(InventoryBase):
     def equals(self, other):
         return other.level == self.level and other.rarity == self.rarity
 
+    def is_slot_suitable(self, slot):
+        return (not slot.ingredients or self.equals(slot.ingredients[0])) and len(slot.ingredients) < 5
+
+
     def drag_stop(self, event):
+        intersected_slot = None
         for crafting_slot in CraftingSlot.slots:
-            # if :
-            #     continue
-            if not crafting_slot.main and self.intersects(crafting_slot) and \
-                    (not crafting_slot.ingredients or self.equals(crafting_slot.ingredients[0])) and \
-                    len(crafting_slot.ingredients) < 5:
-                self.slot = crafting_slot
-                if self not in crafting_slot.ingredients:
-                    crafting_slot.ingredients.append(self)
-                    InventoryBase.edit_amount(canvas=self.canvas, elem=self)
-                self.move_to_slot()
-                crafting_slot.set_text()
-                crafting_slot.indicator.set_state()
-                CraftingSlot.slots[0].text_message_main_slot()
-                break
+            if not crafting_slot.main and self.intersects(crafting_slot):
+                intersected_slot = crafting_slot
+
+        if intersected_slot is None:  # Если ингредиент не пересекает ниодин слот
+            if self.slot is not None:
+                self.slot.ingredients.remove(self)
+                InventoryBase.edit_amount(canvas=self.canvas, elem=self, option=True)
+            self.slot = None
+            InventoryBase.check_in_action_elements(elem=self)
+            CraftingSlot.slots[0].text_message_main_slot()
+
+        elif self.is_slot_suitable(intersected_slot):  # Если ингредиент пересекает слот и этот слот подходит
+            if self.slot is not None:
+                self.slot.ingredients.remove(self)
             else:
-                self.slot = None
-                try:
-                    crafting_slot.ingredients.remove(self)
-                    InventoryBase.check_in_action_elements(elem=self)
-                    InventoryBase.edit_amount(canvas=self.canvas, elem=self, option=True)
-                    CraftingSlot.slots[0].text_message_main_slot()
-                except ValueError:
-                    pass
-            crafting_slot.set_text()
-            if not crafting_slot.main:
-                crafting_slot.indicator.set_state()
+                InventoryBase.edit_amount(canvas=self.canvas, elem=self)
+            if self not in intersected_slot.ingredients:
+                intersected_slot.ingredients.append(self)
+                self.slot = intersected_slot
 
-        else:
-            self.move_to_slot()
-
+        CraftingSlot.update_slots_data()  # Обновляем все индикаторы, тексты и т.д.
+        self.move_to_slot()
         self.canvas.drag_stop(event)
 
     def move_to_slot(self):
@@ -341,7 +347,6 @@ def craft(canvas: CustomCanvas, slots):
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[2].ingredients]),
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[3].ingredients]),
     )
-    # if crafting
 
     # print(f'Fail chance: {crafting.Craft.count_fail_chance()}')
     crafted_ingredient = crafting.Craft.craft()

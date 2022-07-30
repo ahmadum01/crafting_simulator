@@ -75,6 +75,7 @@ serum_slot = SerumSlot(
 )
 
 ings = [
+    ('E', 5),
     ('A', 1), ('A', 1),
     ('A', 1), ('A', 1),
     ('A', 2),
