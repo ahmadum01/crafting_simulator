@@ -63,12 +63,14 @@ class Craft:
 
     @staticmethod
     def count_fail_chance() -> int:
-        senior_ingredient = Craft.get_senior_ingredient()
-        common_level_difference = 0
-        for i, slot in enumerate(Craft.slots):
-            common_level_difference += senior_ingredient.level - slot[0].level
-        fail_probability = common_level_difference * 25 - Craft.count_ingredients(senior_ingredient) * 3
-        return max(fail_probability, 0)
+        if Craft.slots_is_not_empty():
+            senior_ingredient = Craft.get_senior_ingredient()
+            common_level_difference = 0
+            for i, slot in enumerate(Craft.slots):
+                common_level_difference += senior_ingredient.level - slot[0].level
+            fail_probability = common_level_difference * 25 - Craft.count_ingredients(senior_ingredient) * 3
+            return max(fail_probability, 0)
+        return 100
 
     @staticmethod
     def count_probability_for_mix(base_probability: dict, senior_ingredient: Ingredient) -> dict:
