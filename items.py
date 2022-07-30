@@ -41,7 +41,7 @@ class CustomCanvas(tk.Canvas):
 
 class InventoryBase:
     """
-    elements - Служит как словарь. Примерная структура: [{'elems': [], 'level': 1, 'rarity': A}, {}, {}]
+    elements - Служит как словарь. Примерная структура: {'A1': {'elems': [], 'level': 1, 'rarity': A}, ...}
 
     action_elements - список содержащий активные элементы в слотах инвентаря, необходим для показа определенного
     количества элементов в инвентаре. 1ый элемент списка находится в 1ом слоте инвентаря и т.д.
@@ -345,15 +345,16 @@ def craft(canvas: CustomCanvas, slots):
         slots[0].ingredients = [new_ingredient]
         slots[0].set_text()
         InventoryBase.edit_amount(canvas, elem=new_ingredient, option=False)
-    for slot in slots:
-        if slot.main:
-            continue
-        for ingredient in slot.ingredients:
-            canvas.delete(ingredient.shape)
-            InventoryBase.remove_ingredient(ingredient, canvas)
-        slot.ingredients.clear()
-        slot.set_text()
-        slot.indicator.set_state()
+    if crafting.Craft.count_fail_chance() < 100:
+        for slot in slots:
+            if slot.main:
+                continue
+            for ingredient in slot.ingredients:
+                canvas.delete(ingredient.shape)
+                InventoryBase.remove_ingredient(ingredient, canvas)
+            slot.ingredients.clear()
+            slot.set_text()
+            slot.indicator.set_state()
 
-    InventoryBase.init_or_update_data()
-    InventoryBase.show_slot_content(canvas=canvas)
+        InventoryBase.init_or_update_data()
+        InventoryBase.show_slot_content(canvas=canvas)
