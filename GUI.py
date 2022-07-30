@@ -80,8 +80,8 @@ ings = [
     ('A', 2),
     ('A', 1), ('A', 1),
     ('A', 2),
-    # ('B', 2), ('B', 4),
-    # ('E', 1), ('D', 1),
+    ('B', 2), ('B', 4),
+    ('E', 1), ('D', 1),
     # ('D', 3), ('C', 3),
     # ('E', 3), ('B', 5),
     # ('E', 4), ('D', 2),
@@ -98,4 +98,4 @@ for i, ing in enumerate(ings):
 # after created ingredients
 
 InventoryBase.slots = {i // 100: InventorySlot(canvas=canvas, y1=i, y2=i + 90) for i in range(130, 700, 100)}
-InventoryBase.init_data().show_slot_content(canvas=canvas)
+InventoryBase.init_or_update_data().show_slot_content(canvas=canvas)
