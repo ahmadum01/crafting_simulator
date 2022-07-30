@@ -8,4 +8,5 @@ images = {
     'c': image_path + 'C.png',
     'd': image_path + 'D.png',
     'e': image_path + 'E.png',
+    'serum': image_path + 'serum.png',
 }

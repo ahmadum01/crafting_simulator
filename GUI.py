@@ -9,6 +9,7 @@ from items import (
     Button,
     CraftingSlot,
     SerumSlot,
+    Serum,
     craft,
 )
 from config import win_width, win_height, win_bg_color
@@ -25,10 +26,6 @@ canvas.create_text(100, 50, text='craft', fill='red', font='Tahoma 30')  # heade
 canvas.create_text(500, 150, text='Laboratory', fill='red', font='Tahoma 25')  # laboratory header
 inventory = Inventory(canvas, 30, 100, 350, 750)
 laboratory = Laboratory(canvas, 370, 100, win_width - 30, 750)
-
-
-
-button = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="craft", action=lambda : print('Hello'))
 
 
 button = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="craft",

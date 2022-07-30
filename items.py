@@ -209,15 +209,38 @@ class CraftingSlot:
         """Обновляем все индикаторы, тексты и т.д."""
         for slot in CraftingSlot.slots:  #
             if not slot.main:
-                slot.set_text()
                 slot.indicator.set_state()
                 slot.slots[0].text_message_main_slot()
+            slot.set_text()
 
 
-class SerumSlot:
+class SerumSlot:  # TODO
+    slots = []
+
     def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2):
+        self.x1 = x1
+        self.y1 = y1
         self.canvas = canvas
         self.shape = self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
+        SerumSlot.slots.append(self)
+
+
+class Serum:  # TODO
+    counter = 0
+
+    def __init__(self, canvas: CustomCanvas):
+        self.canvas = canvas
+        self.x = CraftingSlot.slots[0].x
+        self.y = CraftingSlot.slots[0].y
+        self.r = CraftingSlot.slots[0].r
+        tag = f"serum{Ingredient.counter}"
+        self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop)
+        self.image = ImageTk.PhotoImage(Image.open(images['serum']).resize((self.r * 2 - 100, self.r * 2 - 100)))
+        self.shape = self.canvas.create_image(self.x, self.y, image=self.image, anchor=tk.CENTER,  tags=(tag,))
+        Serum.counter += 1
+
+    def drag_stop(self, event):
+        self.canvas.moveto(self.shape, SerumSlot.slots[0].x1, SerumSlot.slots[0].y1)
 
 
 class Ingredient(InventoryBase):
