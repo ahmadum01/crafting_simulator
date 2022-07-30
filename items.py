@@ -41,8 +41,7 @@ class CustomCanvas(tk.Canvas):
 
 class InventoryBase:
     """
-    elements - при создании ингредиентов служит как словарь, а при инициализации данных преобразуется в список и в
-    дальнейшем служит как список ингредиентов. Примерная структура: [{'elems': [], 'level': 1, 'rarity': A}, {}, {}]
+    elements - Служит как словарь. Примерная структура: [{'elems': [], 'level': 1, 'rarity': A}, {}, {}]
 
     action_elements - список содержащий активные элементы в слотах инвентаря, необходим для показа определенного
     количества элементов в инвентаре. 1ый элемент списка находится в 1ом слоте инвентаря и т.д.
@@ -52,7 +51,7 @@ class InventoryBase:
 
     index - необходим для прокрутки инвентаря, взаимодействие происходит в дочернем классе "Inventory"
 
-    dict_elements - словарь содержащий информацию об ингридиентах, копия словаря "elements" см. выше.
+    list_elements - список содержащий информацию об ингридиентах, копия словаря "elements" см. выше.
     """
     elements = {}
     action_elements = []
@@ -116,7 +115,6 @@ class InventoryBase:
         InventoryBase.show_slot_content(canvas)
 
     @staticmethod
-    # TODO: works crookedly, in development
     def edit_amount(canvas: CustomCanvas, elem: 'Ingredient', option=False):
         if option:
             InventoryBase.elements[f'{elem.rarity}{elem.level}']['amount'] += 1
