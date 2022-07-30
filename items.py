@@ -243,9 +243,9 @@ class Ingredient(InventoryBase):
 
     def drag_stop(self, event):
         for crafting_slot in CraftingSlot.slots:
-            if crafting_slot.main:
-                continue
-            if self.intersects(crafting_slot) and \
+            # if :
+            #     continue
+            if not crafting_slot.main and self.intersects(crafting_slot) and \
                     (not crafting_slot.ingredients or self.equals(crafting_slot.ingredients[0])) and \
                     len(crafting_slot.ingredients) < 5:
                 self.slot = crafting_slot
@@ -265,7 +265,8 @@ class Ingredient(InventoryBase):
                 except ValueError:
                     pass
             crafting_slot.set_text()
-            crafting_slot.indicator.set_state()
+            if not crafting_slot.main:
+                crafting_slot.indicator.set_state()
         else:
             self.move_to_slot()
 
@@ -278,7 +279,7 @@ class Ingredient(InventoryBase):
             self.canvas.moveto(self.shape, self.slot.x - self.r, self.slot.y - self.r)
 
     def __repr__(self):
-        return f'Ing({self.rarity}{self.level} {id(self)})'
+        return f'Ing({self.rarity}{self.level})'
 
 
 class Button:
@@ -332,14 +333,20 @@ class Indicator:
 def craft(canvas: CustomCanvas, slots):
     crafting.Craft.init_slots(
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[1].ingredients]),
-        crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[1].ingredients]),
-        crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[1].ingredients]),
+        crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[2].ingredients]),
+        crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[3].ingredients]),
     )
+    print(crafting.Craft.count_fail_chance())
     crafted_ingredient = crafting.Craft.craft()
-    new_ingredient = Ingredient(canvas, rarity=crafted_ingredient.rarity, level=crafted_ingredient.level)
-    new_ingredient.slot = slots[0]
-    new_ingredient.move_to_slot()
-    slots[0].ingredients = [new_ingredient]
+    print(crafted_ingredient)
+    if isinstance(crafted_ingredient, crafting.Ingredient):
+
+        new_ingredient = Ingredient(canvas, rarity=crafted_ingredient.rarity, level=crafted_ingredient.level)
+        new_ingredient.slot = slots[0]
+        new_ingredient.move_to_slot()
+        slots[0].ingredients = [new_ingredient]
+        slots[0].set_text()
+        InventoryBase.edit_amount(canvas, elem=new_ingredient, option=False)
     for slot in slots:
         if slot.main:
             continue

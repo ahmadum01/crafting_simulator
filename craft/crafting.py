@@ -47,6 +47,13 @@ class Craft:
         return max(Craft.slots, key=lambda x: x[0].properties)[0]
 
     @staticmethod
+    def slots_is_not_empty():
+        for slot in Craft.slots:
+            if len(slot) == 0:
+                return False
+        return True
+
+    @staticmethod
     def count_ingredients(ingredient: Ingredient) -> int:
         """ Counts ingredients in all slots """
         count = 0
@@ -69,7 +76,7 @@ class Craft:
         if Craft.slots[0] == Craft.slots[1] == Craft.slots[2] and len(Craft.slots[0]) == 1:
             return base_probability
 
-        move_probability = (Craft.count_ingredients(senior_ingredient) - 1) * 6.6
+        move_probability = (Craft.count_ingredients(senior_ingredient) - 1) * 6.6  # TODO: Change coefficient
         rarity_num = rarity_nums[senior_ingredient.rarity]
         for i, key in enumerate(result_probability):
             if i == rarity_num:
@@ -107,19 +114,21 @@ class Craft:
         return Ingredient(rarity=new_ingredient_rarity, level=level)
 
     @staticmethod
-    def craft() -> Ingredient | str | None:
+    def craft() -> Ingredient | str:
+        if not Craft.slots_is_not_empty():
+            return 'There are empty slots'
+
         if not Craft.is_craft_possible():
-            return 'Impossible'
+            return 'Fail chance is 100 percent'
 
         fail_chance = Craft.count_fail_chance()
 
         if Craft.is_fail(fail_chance):
-            return None
+            return 'Fail'
 
         senior_ingredient = Craft.get_senior_ingredient()
         base_probability = base_probabilities[senior_ingredient.rarity]
         mix_probability = Craft.count_probability_for_mix(base_probability, senior_ingredient)
-        print(mix_probability)
         return Craft.generate_new_ingredient(mix_probability, senior_ingredient.level + 1)
 
 
