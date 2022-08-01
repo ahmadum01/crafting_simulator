@@ -18,8 +18,11 @@ class CustomCanvas(tk.Canvas):
         self.tag_bind(tag_name, "<B1-Motion>", self.drag)
 
     def drag_start(self, event):
+        item = self.find_closest(event.x, event.y)[0]
+        if not self.gettags(item):
+            return
         """Beginning drag of an object"""
-        self._drag_data["item"] = self.find_closest(event.x, event.y)[0]
+        self._drag_data["item"] = item
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y
         self.lift(self._drag_data["item"])
@@ -32,6 +35,8 @@ class CustomCanvas(tk.Canvas):
 
     def drag(self, event):
         """Handle dragging of an object"""
+        if self._drag_data["item"] is None:
+            return
         delta_x = event.x - self._drag_data["x"]
         delta_y = event.y - self._drag_data["y"]
         self.move(self._drag_data["item"], delta_x, delta_y)
