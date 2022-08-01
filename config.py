@@ -9,4 +9,5 @@ images = {
     'd': image_path + 'D.png',
     'e': image_path + 'E.png',
     'serum': image_path + 'serum.png',
+    'empty_serum': image_path + 'empty_serum.png',
 }

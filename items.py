@@ -214,18 +214,31 @@ class CraftingSlot:
             slot.set_text()
 
 
-class SerumSlot:  # TODO
+class SerumSlot:
     slots = []
 
     def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2):
         self.x1 = x1
         self.y1 = y1
+        self.r = CraftingSlot.slots[0].r
         self.canvas = canvas
         self.shape = self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
         SerumSlot.slots.append(self)
+        text_message = f'Serum\nAmount: {Serum.counter}'
+        self.text = self.canvas.create_text(self.x1 + 140, self.y1 + 50, text=text_message, font='Tahoma 14')
+
+        self.image = ImageTk.PhotoImage(Image.open(images['empty_serum']).resize((self.r * 2 - 80, self.r * 2 - 80)))
+
+        self.canvas.create_image(SerumSlot.slots[0].x1 + 50,
+                                 SerumSlot.slots[0].y1 + 50,
+                                 image=self.image,
+                                 anchor=tk.CENTER)
+
+    def set_text(self):
+        self.canvas.itemconfig(self.text, text=f'Serum\nAmount: {Serum.counter}')
 
 
-class Serum:  # TODO
+class Serum:
     counter = 0
 
     def __init__(self, canvas: CustomCanvas):
@@ -235,12 +248,13 @@ class Serum:  # TODO
         self.r = CraftingSlot.slots[0].r
         tag = f"serum{Ingredient.counter}"
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop)
-        self.image = ImageTk.PhotoImage(Image.open(images['serum']).resize((self.r * 2 - 100, self.r * 2 - 100)))
+        self.image = ImageTk.PhotoImage(Image.open(images['serum']).resize((self.r * 2 - 80, self.r * 2 - 80)))
         self.shape = self.canvas.create_image(self.x, self.y, image=self.image, anchor=tk.CENTER,  tags=(tag,))
         Serum.counter += 1
 
     def drag_stop(self, event):
-        self.canvas.moveto(self.shape, SerumSlot.slots[0].x1, SerumSlot.slots[0].y1)
+        self.canvas.moveto(self.shape, SerumSlot.slots[0].x1 - 10, SerumSlot.slots[0].y1 - 10)
+        SerumSlot.slots[0].set_text()
 
 
 class Ingredient(InventoryBase):
