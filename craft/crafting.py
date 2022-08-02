@@ -1,9 +1,30 @@
-from random import choices
-from craft.configs import base_probabilities, rarity_nums
+from craft import configs
+from random import choices, randrange, choice
+from enum import Enum
+from dataclasses import dataclass
+
+
+class Colors(Enum):
+    RED = 'red'
+    YELLOW = 'yellow'
+    VIOLET = 'violet'
+    BLUE = 'blue'
+    GREEN = 'green'
+
+
+@dataclass
+class ColorStatement:
+    slot1: Colors
+    slot2: Colors
+    slot3: Colors
 
 
 class Ingredient:
     def __init__(self, rarity, level):
+        if rarity not in configs.rarities:
+            raise ValueError(f'rarity have to be in {configs.rarities}')
+        if level not in configs.levels:
+            raise ValueError(f'level have to be in {configs.levels}')
         self.rarity = rarity
         self.level = level
         self.properties = (self.level, self.rarity)
@@ -13,9 +34,6 @@ class Ingredient:
 
     def __eq__(self, other):
         return self.rarity == other.rarity and self.level == other.level
-
-    # def __hash__(self):
-    #     return hash(self.properties)
 
 
 class Slot:
@@ -34,9 +52,9 @@ class Slot:
     def __eq__(self, other):
         return self.ingredients[0] == other.ingredients[0] and len(self.ingredients) == len(other.ingredients)
 
-
 class Craft:
     slots = []
+    daily_recipe = None
 
     @staticmethod
     def init_slots(*slots):
@@ -79,7 +97,7 @@ class Craft:
             return base_probability
 
         move_probability = (Craft.count_ingredients(senior_ingredient) - 1) * 6.6  # TODO: Change coefficient
-        rarity_num = rarity_nums[senior_ingredient.rarity]
+        rarity_num = configs.rarity_nums[senior_ingredient.rarity]
         for i, key in enumerate(result_probability):
             if i == rarity_num:
                 break
@@ -90,7 +108,7 @@ class Craft:
         for slot in Craft.slots:
             if slot[0] != senior_ingredient:
                 level_diff = senior_ingredient.level - slot[0].level
-                rarity_diff = rarity_nums[senior_ingredient.rarity] - rarity_nums[slot[0].rarity]
+                rarity_diff = configs.rarity_nums[senior_ingredient.rarity] - configs.rarity_nums[slot[0].rarity]
                 move_probability = max([15 * (3 * level_diff + rarity_diff) - 2 * (len(slot) - 1), 0])
                 move_probability = result_probability[senior_ingredient.rarity] * move_probability / 100
                 for i, key in enumerate(result_probability):
@@ -129,19 +147,65 @@ class Craft:
             return 'Fail'
 
         senior_ingredient = Craft.get_senior_ingredient()
-        base_probability = base_probabilities[senior_ingredient.rarity]
+        base_probability = configs.base_probabilities[senior_ingredient.rarity]
         mix_probability = Craft.count_probability_for_mix(base_probability, senior_ingredient)
         return Craft.generate_new_ingredient(mix_probability, senior_ingredient.level + 1)
 
+    @staticmethod
+    def generate_rand_ingredient(number: int) -> list[Ingredient]:
+        rarity = choice(configs.rarities)
+        level = choice(configs.levels)
+        return [Ingredient(rarity, level) for _ in range(number)]
+
+    @staticmethod
+    def generate_rand_recipe() -> list[Slot]:
+        slots = []
+        for _ in range(3):
+            number = randrange(1, 5)
+            slots.append(Slot(*Craft.generate_rand_ingredient(number)))
+        return slots
+
+    @staticmethod
+    def set_daily_recipe(*slots):
+        Craft.daily_recipe = slots
+
+    @staticmethod
+    def check_recipe_matching() -> ColorStatement:
+        slot_colors = dict(slot1=Colors.GREEN, slot2=Colors.GREEN, slot3=Colors.GREEN)
+        for i, key in enumerate(slot_colors):
+            slot = Craft.slots[i]
+            if slot == Craft.daily_recipe[i]:
+                slot_colors[key] = Colors.GREEN
+            elif slot[0].properties == Craft.daily_recipe[i][0].properties:
+                if len(slot) < len(Craft.daily_recipe[0]):
+                    slot_colors[key] = Colors.VIOLET
+                else:
+                    slot_colors[key] = Colors.BLUE
+            else:
+                for recipe_slot in Craft.daily_recipe:
+                    if slot[0].properties == recipe_slot[0].properties:
+                        slot_colors[key] = Colors.YELLOW
+                        break
+                else:
+                    slot_colors[key] = Colors.RED
+
+        return ColorStatement(slot1=slot_colors['slot1'], slot2=slot_colors['slot2'], slot3=slot_colors['slot3'])
+
 
 if __name__ == '__main__':
-
-    right_slot = Slot(*[Ingredient('C', 2) for _ in range(3)])
-    left_slot = Slot(*[Ingredient('A', 1) for _ in range(1)])
+    left_slot = Slot(*[Ingredient('B', 1) for _ in range(1)])
     bottom_slot = Slot(*[Ingredient('B', 1) for _ in range(2)])
+    right_slot = Slot(*[Ingredient('C', 2) for _ in range(3)])
 
-    Craft.init_slots(left_slot, right_slot, bottom_slot)
-    print(Craft.craft())
-    # from collections import Counter
-    # c = Counter([craft(right_slot, left_slot, bottom_slot) for _ in range(1000)])
-    # print(c)
+    left_slot_d = Slot(*[Ingredient('B', 1) for _ in range(2)])
+    bottom_slot_d = Slot(*[Ingredient('A', 2) for _ in range(3)])
+    right_slot_d = Slot(*[Ingredient('C', 2) for _ in range(3)])
+
+    Craft.init_slots(left_slot, bottom_slot, right_slot)
+    # temp = Craft.generate_rand_recipe()
+    Craft.set_daily_recipe(left_slot_d, bottom_slot_d, right_slot_d)
+
+    print('Рецепт:', Craft.daily_recipe)
+    print('Мой крафтинг: ', Craft.slots)
+    print(Craft.check_recipe_matching())
+
