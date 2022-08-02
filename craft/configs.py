@@ -13,3 +13,6 @@ rarity_nums = dict(
     D=3,
     E=4,
 )
+
+rarities = ['A', 'B', 'C', 'D', 'E']
+levels = list(range(1, 5))

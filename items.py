@@ -284,19 +284,15 @@ class Ingredient(InventoryBase):
         InventoryBase.elements[f'{rarity}{level}']['amount'] += 1
         InventoryBase.elements[f'{rarity}{level}']['elems'].append(self)
 
-    def check_move_to_back(self):
-        self.canvas.moveto(self.shape, self.x, self.y)
-
-    def intersects(self, slot):
+    def intersects(self, slot: CraftingSlot) -> bool:
         x, y = self.canvas.coords(self.shape)
         return ((slot.x - x) ** 2 + (slot.y - y) ** 2) ** 0.5 <= slot.r + self.r
 
-    def equals(self, other):
+    def equals(self, other: 'Ingredient') -> bool:
         return other.level == self.level and other.rarity == self.rarity
 
-    def is_slot_suitable(self, slot):
+    def is_slot_suitable(self, slot: CraftingSlot) -> bool:
         return (not slot.ingredients or self.equals(slot.ingredients[0])) and len(slot.ingredients) < 5
-
 
     def drag_stop(self, event):
         intersected_slot = None
