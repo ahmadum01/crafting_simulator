@@ -389,15 +389,12 @@ def craft(canvas: CustomCanvas, slots):
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[2].ingredients]),
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[3].ingredients]),
     )
-
-    # print(f'Fail chance: {crafting.Craft.count_fail_chance()}')
     crafted_ingredient = crafting.Craft.craft()
-    print(crafted_ingredient)
     if isinstance(crafted_ingredient, crafting.Ingredient):
         new_ingredient = Ingredient(canvas, rarity=crafted_ingredient.rarity, level=crafted_ingredient.level)
         new_ingredient.slot = slots[0]
         new_ingredient.move_to_slot()
-        slots[0].ingredients = [new_ingredient]
+        slots[0].ingredients.append(new_ingredient)
         slots[0].set_text()
         InventoryBase.edit_amount(canvas, elem=new_ingredient, option=False)
     if crafting.Craft.count_fail_chance() < 100:

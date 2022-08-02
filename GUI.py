@@ -42,24 +42,24 @@ main_slot = CraftingSlot(
     main=True
 )
 
-left_slot = CraftingSlot(
+left_slot = CraftingSlot(  # slot №1
     canvas,
     x=main_slot.x - 250,
     y=main_slot.y,
     r=60,
 )
 
-right_slot = CraftingSlot(
-    canvas,
-    x=main_slot.x + 250,
-    y=main_slot.y,
-    r=60,
-)
-
-bottom_slot = CraftingSlot(
+bottom_slot = CraftingSlot(  # slot №2
     canvas,
     x=main_slot.x,
     y=main_slot.y + 250,
+    r=60,
+)
+
+right_slot = CraftingSlot(   # slot №3
+    canvas,
+    x=main_slot.x + 250,
+    y=main_slot.y,
     r=60,
 )
 
@@ -71,19 +71,28 @@ serum_slot = SerumSlot(
     y2=200
 )
 
-ings = [
-    ('E', 5),
-    ('A', 1), ('A', 1),
-    ('A', 1), ('A', 1),
-    ('A', 2),
-    ('A', 1), ('A', 1),
-    ('A', 2),
-    ('B', 2), ('B', 4),
-    ('E', 1), ('D', 1),
-    ('D', 3), ('C', 3),
-    ('E', 3), ('B', 5),
-    # ('E', 4), ('D', 2),
 
+ings = [
+    *[('A', 1) for _ in range(10)],
+    *[('A', 2) for _ in range(10)],
+    *[('A', 3) for _ in range(10)],
+    *[('A', 4) for _ in range(10)],
+    *[('B', 1) for _ in range(10)],
+    *[('B', 2) for _ in range(10)],
+    *[('B', 3) for _ in range(10)],
+    *[('B', 4) for _ in range(10)],
+    *[('C', 1) for _ in range(10)],
+    *[('C', 2) for _ in range(10)],
+    *[('C', 3) for _ in range(10)],
+    *[('C', 4) for _ in range(10)],
+    *[('D', 1) for _ in range(10)],
+    *[('D', 2) for _ in range(10)],
+    *[('D', 3) for _ in range(10)],
+    *[('D', 4) for _ in range(10)],
+    *[('E', 1) for _ in range(10)],
+    *[('E', 2) for _ in range(10)],
+    *[('E', 3) for _ in range(10)],
+    *[('E', 4) for _ in range(10)],
 ]
 
 for i, ing in enumerate(ings):
