@@ -1,6 +1,7 @@
 import tkinter as tk
+from tkinter import scrolledtext
 from PIL import Image, ImageTk
-from config import images, win_bg_color
+from config import images, win_bg_color, win_width, win_height
 import craft.crafting as crafting
 
 
@@ -397,7 +398,7 @@ def craft(canvas: CustomCanvas, slots):
         new_ingredient = Ingredient(canvas, rarity=crafted_ingredient.rarity, level=crafted_ingredient.level)
         new_ingredient.slot = slots[0]
         new_ingredient.move_to_slot()
-        slots[0].ingredients = [new_ingredient]
+        slots[0].ingredients.append(new_ingredient)
         slots[0].set_text()
         InventoryBase.edit_amount(canvas, elem=new_ingredient, option=False)
     if crafting.Craft.count_fail_chance() < 100:
@@ -421,3 +422,42 @@ def craft(canvas: CustomCanvas, slots):
             slots[0].text_message_main_slot(text='   Fail chance \nis 100 percents')
         else:
             slots[0].text_message_main_slot('Slots are empty')
+
+
+class Statement:
+    statement_root = None
+    statement_list = []
+
+    @staticmethod
+    def statement(root):
+        if Statement.statement_root is not None:
+            Statement.statement_root.destroy()
+            Statement.statement_root = None
+
+        else:
+            Statement.statement_root = scrolledtext.ScrolledText(root, width=48, height=38)
+            Statement.statement_root.pack()
+            Statement.statement_root.place(x=845, y=99)
+
+            images = 'ABCDE'
+            images_list = []
+            for j, image in enumerate(images):
+                img = Image.open(f'src/images/{image}.png').resize((64, 64))
+                img = ImageTk.PhotoImage(img)
+                images_list.append(img)
+            print(True)
+            for i in range(5):
+                frame = tk.Frame(root)
+                for j in range(3):
+                    label = tk.Label(frame, image=images_list[j], width=30, borderwidth=12, bg='black')
+                    label.grid(row=0, column=j, padx=10, pady=10)
+                Statement.statement_root.window_create(tk.END, window=frame)
+
+        # if Statement.statement_root is not None:
+        #     Statement.statement_root.destroy()
+        #     Statement.statement_root = None
+        #
+        # else:
+        #     Statement.statement_root = CustomCanvas(root, 400, 600)
+        #     Statement.statement_root.pack()
+        #     Statement.statement_root.place(x=845, y=99)
