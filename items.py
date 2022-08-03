@@ -203,8 +203,11 @@ class CraftingSlot:
     def set_text(self):
         text = ''
         if self.ingredients:
-            text = f'Level: {self.ingredients[0].level}\n' \
-                   f'Rarity: {self.ingredients[0].rarity}\n'
+            if isinstance(self.ingredients[0], Serum):
+                text = 'Serum'
+            elif isinstance(self.ingredients[0], Ingredient):
+                text = f'Level: {self.ingredients[0].level}\n' \
+                       f'Rarity: {self.ingredients[0].rarity}\n'
         self.canvas.itemconfig(self.text, text=text)
 
     def text_message_main_slot(self, text=''):
@@ -260,7 +263,11 @@ class Serum:
 
     def drag_stop(self, event):
         self.canvas.moveto(self.shape, SerumSlot.slots[0].x1 - 10, SerumSlot.slots[0].y1 - 10)
+        print(CraftingSlot.slots[0].ingredients)
+        CraftingSlot.slots[0].ingredients.remove(self)
+        print(CraftingSlot.slots[0].ingredients)
         SerumSlot.slots[0].set_text()
+        CraftingSlot.update_slots_data()
 
 
 class Ingredient(InventoryBase):
@@ -389,23 +396,26 @@ class Indicator:
 
 
 def craft(canvas: CustomCanvas, slots):
-    for slot in slots[1:]:
-        if slot.ingredients[0].level > 3:
-            print('Крафтинг серума пока не реализован')
-            return
     crafting.Craft.init_slots(
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[1].ingredients]),
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[2].ingredients]),
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[3].ingredients]),
     )
-    crafted_ingredient = crafting.Craft.craft()
-    if isinstance(crafted_ingredient, crafting.Ingredient):
-        new_ingredient = Ingredient(canvas, rarity=crafted_ingredient.rarity, level=crafted_ingredient.level)
+    crafted_element = crafting.Craft.craft()
+    if isinstance(crafted_element, crafting.Ingredient):
+        new_ingredient = Ingredient(canvas, rarity=crafted_element.rarity, level=crafted_element.level)
         new_ingredient.slot = slots[0]
         new_ingredient.move_to_slot()
         slots[0].ingredients.append(new_ingredient)
         slots[0].set_text()
         InventoryBase.edit_amount(canvas, elem=new_ingredient, option=False)
+    elif isinstance(crafted_element, crafting.Serum):
+        new_ingredient = Serum(canvas)
+        new_ingredient.slot = slots[0]
+        slots[0].ingredients.append(new_ingredient)
+        slots[0].set_text()
+    elif isinstance(crafted_element, str):
+        pass
     if crafting.Craft.count_fail_chance() < 100:
         Statement.statement_list.append([])
         for slot in slots:
@@ -423,8 +433,8 @@ def craft(canvas: CustomCanvas, slots):
         slots[0].text_message_main_slot()
         InventoryBase.init_or_update_data()
         InventoryBase.show_slot_content(canvas=canvas)
-        if isinstance(crafted_ingredient, str) and crafted_ingredient == 'Fail':
-            slots[0].text_message_main_slot(crafted_ingredient)
+        if isinstance(crafted_element, str) and crafted_element == 'Fail':
+            slots[0].text_message_main_slot(crafted_element)
         try:
             Statement.statement_list[-1].append(
                 [f'{new_ingredient.rarity}{new_ingredient.level}x{len(CraftingSlot.slots[0].ingredients)}',
@@ -436,9 +446,8 @@ def craft(canvas: CustomCanvas, slots):
         Statement.statement_list[-1][0].append(colors.slot1.value)
         Statement.statement_list[-1][1].append(colors.slot2.value)
         Statement.statement_list[-1][2].append(colors.slot3.value)
-
     else:
-        if crafted_ingredient != 'There are empty slots':
+        if crafted_element != 'There are empty slots':
             slots[0].text_message_main_slot(text='   Fail chance \nis 100 percents')
         else:
             slots[0].text_message_main_slot('Slots are empty')
