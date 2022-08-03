@@ -102,6 +102,7 @@ class InventoryBase:
     def remove_empty_elements(element: 'Ingredient'):
         if not InventoryBase.elements[f'{element.rarity}{element.level}']['elems']:
             InventoryBase.elements.pop(f'{element.rarity}{element.level}')
+            InventoryBase.index -= 1
 
     @staticmethod
     def remove_ingredient(element: 'Ingredient', canvas: CustomCanvas):
@@ -112,9 +113,6 @@ class InventoryBase:
         if len(InventoryBase.list_elements) <= 6:
             InventoryBase.action_elements = InventoryBase.list_elements
         else:
-            if InventoryBase.index - 1 != -1:
-                InventoryBase.index -= 1
-
             InventoryBase.action_elements = InventoryBase.list_elements[InventoryBase.index:InventoryBase.index + 6]
 
         InventoryBase.show_slot_content(canvas)
@@ -258,16 +256,18 @@ class Serum:
         self.shape = self.canvas.create_image(self.x, self.y, image=self.image, anchor=tk.CENTER, tags=(tag,))
         Serum.counter += 1
 
+    def move_to_slot(self):
+        self.canvas.moveto(self.shape, SerumSlot.slots[0].x1 - 10, SerumSlot.slots[0].y1 - 10)
+        self.slot = SerumSlot.slots[0]
+        SerumSlot.slots[0].serums.append(self)
+        SerumSlot.slots[0].set_text()
+        CraftingSlot.update_slots_data()
+
     def drag_stop(self, event):
         if self.slot in SerumSlot.slots:
             pass
         else:
-            self.canvas.moveto(self.shape, SerumSlot.slots[0].x1 - 10, SerumSlot.slots[0].y1 - 10)
-            self.slot = SerumSlot.slots[0]
-            SerumSlot.slots[0].serums.append(self)
-            CraftingSlot.slots[0].ingredients.remove(self)
-            SerumSlot.slots[0].set_text()
-            CraftingSlot.update_slots_data()
+            self.move_to_slot()
 
 
 class Ingredient(InventoryBase):
@@ -330,20 +330,20 @@ class Ingredient(InventoryBase):
         self.canvas.drag_stop(event)
 
     def move_to_slot(self):
-        if any(CraftingSlot.slots[0].ingredients):
-            for elem in CraftingSlot.slots[0].ingredients:
-                if isinstance(elem, Serum):
-                    pass
-                CraftingSlot.slots[0].ingredients.remove(elem)
-                InventoryBase.check_in_action_elements(elem)
-                elem.canvas.moveto(elem.shape, elem.x, elem.y)
-                InventoryBase.edit_amount(elem.canvas, elem, option=True)
-                CraftingSlot.update_slots_data()
-
         if self.slot is None:
             self.canvas.moveto(self.shape, self.x, self.y)
         else:
             self.canvas.moveto(self.shape, self.slot.x - self.r, self.slot.y - self.r)
+            if any(CraftingSlot.slots[0].ingredients):
+                for elem in CraftingSlot.slots[0].ingredients:
+                    CraftingSlot.slots[0].ingredients.remove(elem)
+                    if isinstance(elem, Serum):
+                        elem.move_to_slot()
+                    else:
+                        InventoryBase.check_in_action_elements(elem)
+                        InventoryBase.edit_amount(elem.canvas, elem, option=True)
+                        elem.canvas.moveto(elem.shape, elem.x, elem.y)
+                        CraftingSlot.update_slots_data()
 
     def __repr__(self):
         return f'Ing({self.rarity}{self.level})'
@@ -433,8 +433,6 @@ def craft(canvas: CustomCanvas, slots):
             slot.set_text()
             slot.indicator.set_state()
         slots[0].text_message_main_slot()
-        InventoryBase.init_or_update_data()
-        InventoryBase.show_slot_content(canvas=canvas)
         if isinstance(crafted_element, str) and crafted_element == 'Fail':
             slots[0].text_message_main_slot(crafted_element)
         try:
@@ -448,6 +446,9 @@ def craft(canvas: CustomCanvas, slots):
         Statement.statement_list[-1][0].append(colors.slot1.value)
         Statement.statement_list[-1][1].append(colors.slot2.value)
         Statement.statement_list[-1][2].append(colors.slot3.value)
+        InventoryBase.init_or_update_data()
+        InventoryBase.show_slot_content(canvas=canvas)
+
     else:
         if crafted_element != 'There are empty slots':
             slots[0].text_message_main_slot(text='   Fail chance \nis 100 percents')
