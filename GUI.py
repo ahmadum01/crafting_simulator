@@ -74,7 +74,7 @@ serum_slot = SerumSlot(
 
 rand_recipe = Craft.generate_rand_recipe()
 print('Daily recipe:', rand_recipe)
-Craft.set_daily_recipe(rand_recipe)  # Set daly recipe
+Craft.set_daily_recipe(*rand_recipe)  # Set daly recipe
 
 ings = [
     *[('A', 1) for _ in range(10)],

@@ -380,6 +380,10 @@ class Indicator:
 
 
 def craft(canvas: CustomCanvas, slots):
+    for slot in slots[1:]:
+        if slot.ingredients[0].level > 3:
+            print('Крафтинг серума пока не реализован')
+            return
     crafting.Craft.init_slots(
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[1].ingredients]),
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[2].ingredients]),
@@ -414,3 +418,5 @@ def craft(canvas: CustomCanvas, slots):
             slots[0].text_message_main_slot(text='   Fail chance \nis 100 percents')
         else:
             slots[0].text_message_main_slot('Slots are empty')
+
+    print(crafting.Craft.check_recipe_matching())
