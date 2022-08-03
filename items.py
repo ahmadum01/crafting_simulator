@@ -458,6 +458,7 @@ class Statement:
     def statement(self, root: tk.Tk):
         if Statement.statement_root is None:
             Statement.statement_root = scrolledtext.ScrolledText(root, width=70, height=38)
+            Statement.statement_root['state'] = 'disabled'
             Statement.statement_root.pack()
 
         if not Statement.flag:
