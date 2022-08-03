@@ -323,6 +323,14 @@ class Ingredient(InventoryBase):
         self.canvas.drag_stop(event)
 
     def move_to_slot(self):
+        if any(CraftingSlot.slots[0].ingredients):
+            for elem in CraftingSlot.slots[0].ingredients:
+                CraftingSlot.slots[0].ingredients.remove(elem)
+                InventoryBase.check_in_action_elements(elem)
+                elem.canvas.moveto(elem.shape, elem.x, elem.y)
+                InventoryBase.edit_amount(elem.canvas, elem, option=True)
+                CraftingSlot.update_slots_data()
+
         if self.slot is None:
             self.canvas.moveto(self.shape, self.x, self.y)
         else:
