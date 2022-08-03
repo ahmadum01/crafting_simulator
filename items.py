@@ -227,13 +227,13 @@ class SerumSlot:
     def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2):
         self.x1 = x1
         self.y1 = y1
-        self.r = CraftingSlot.slots[0].r
+        self.r = CraftingSlot.slots[1].r
         self.canvas = canvas
         self.serums = []
         self.shape = self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
         text_message = f'Serum\nAmount: {Serum.counter}'
         self.text = self.canvas.create_text(self.x1 + 140, self.y1 + 50, text=text_message, font='Tahoma 14')
-        self.image = ImageTk.PhotoImage(Image.open(images['empty_serum']).resize((self.r * 2 - 80, self.r * 2 - 80)))
+        self.image = ImageTk.PhotoImage(Image.open(images['empty_serum']).resize((self.r * 2 - 50, self.r * 2 - 50)))
         self.empty_serum = self.canvas.create_image(self.x1 + 50, self.y1 + 50, image=self.image, anchor=tk.CENTER)
         SerumSlot.slots.append(self)
 
@@ -248,16 +248,16 @@ class Serum:
         self.canvas = canvas
         self.x = CraftingSlot.slots[0].x
         self.y = CraftingSlot.slots[0].y
-        self.r = CraftingSlot.slots[0].r
+        self.r = CraftingSlot.slots[1].r
         self.slot = None
         tag = f"serum{Ingredient.counter}"
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop)
-        self.image = ImageTk.PhotoImage(Image.open(images['serum']).resize((self.r * 2 - 80, self.r * 2 - 80)))
+        self.image = ImageTk.PhotoImage(Image.open(images['serum']).resize((self.r * 2 - 50, self.r * 2 - 50)))
         self.shape = self.canvas.create_image(self.x, self.y, image=self.image, anchor=tk.CENTER, tags=(tag,))
         Serum.counter += 1
 
     def move_to_slot(self):
-        self.canvas.moveto(self.shape, SerumSlot.slots[0].x1 - 10, SerumSlot.slots[0].y1 - 10)
+        self.canvas.moveto(self.shape, SerumSlot.slots[0].x1 + 15, SerumSlot.slots[0].y1 + 15)
         self.slot = SerumSlot.slots[0]
         SerumSlot.slots[0].serums.append(self)
         SerumSlot.slots[0].set_text()
@@ -435,12 +435,15 @@ def craft(canvas: CustomCanvas, slots):
         slots[0].text_message_main_slot()
         if isinstance(crafted_element, str) and crafted_element == 'Fail':
             slots[0].text_message_main_slot(crafted_element)
-        try:
-            Statement.statement_list[-1].append(
-                [f'{new_ingredient.rarity}{new_ingredient.level}x{len(CraftingSlot.slots[0].ingredients)}',
-                 new_ingredient.image])
-        except Exception:
             Statement.statement_list[-1].append(['Fail'])
+        else:
+            try:
+                Statement.statement_list[-1].append(
+                    [f'{new_ingredient.rarity}{new_ingredient.level}x{len(CraftingSlot.slots[0].ingredients)}',
+                     new_ingredient.image])
+            except AttributeError:
+                Statement.statement_list[-1].append(
+                    [f'Serum x{len(CraftingSlot.slots[0].ingredients)}', new_ingredient.image])
 
         colors = crafting.Craft.check_recipe_matching()
         Statement.statement_list[-1][0].append(colors.slot1.value)
@@ -486,17 +489,15 @@ class Statement:
                     label_text.grid(row=1, column=j, padx=20, pady=10)
 
                 label_text = tk.Label(frame, text='--->')
-                label_text.grid(row=0, column=j+1, padx=20, pady=10)
+                label_text.grid(row=0, column=j + 1, padx=20, pady=10)
 
                 try:
                     label_text = tk.Label(frame, text=elems_list[-1][0])
                     label = tk.Label(frame, image=elems_list[-1][1], width=45, borderwidth=25, bg='white')
-                    label.grid(row=0, column=j+2, padx=20, pady=10)
-                    label_text.grid(row=1, column=j+2, padx=20, pady=10)
+                    label.grid(row=0, column=j + 2, padx=20, pady=10)
+                    label_text.grid(row=1, column=j + 2, padx=20, pady=10)
                 except IndexError:
                     label_text = tk.Label(frame, text='FAIL', bg='red', width=12)
-                    label_text.grid(row=0, column=j+2, padx=20, pady=10)
+                    label_text.grid(row=0, column=j + 2, padx=20, pady=10)
 
                 Statement.statement_root.window_create(tk.END, window=frame)
-    
-
