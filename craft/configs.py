@@ -14,5 +14,13 @@ rarity_nums = dict(
     E=4,
 )
 
+serum_probabilities = dict(
+    A=2,
+    B=3,
+    C=5,
+    D=10,
+    E=20,
+)
+
 rarities = ['A', 'B', 'C', 'D', 'E']
 levels = list(range(1, 5))
