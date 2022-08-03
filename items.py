@@ -259,10 +259,15 @@ class Serum:
         Serum.counter += 1
 
     def drag_stop(self, event):
-        self.canvas.moveto(self.shape, SerumSlot.slots[0].x1 - 10, SerumSlot.slots[0].y1 - 10)
-        CraftingSlot.slots[0].ingredients.remove(self)
-        SerumSlot.slots[0].set_text()
-        CraftingSlot.update_slots_data()
+        if self.slot in SerumSlot.slots:
+            pass
+        else:
+            self.canvas.moveto(self.shape, SerumSlot.slots[0].x1 - 10, SerumSlot.slots[0].y1 - 10)
+            self.slot = SerumSlot.slots[0]
+            SerumSlot.slots[0].serums.append(self)
+            CraftingSlot.slots[0].ingredients.remove(self)
+            SerumSlot.slots[0].set_text()
+            CraftingSlot.update_slots_data()
 
 
 class Ingredient(InventoryBase):
