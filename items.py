@@ -1,6 +1,7 @@
 import tkinter as tk
+from tkinter import scrolledtext
 from PIL import Image, ImageTk
-from config import images, win_bg_color
+from config import images, win_bg_color, win_width, win_height
 import craft.crafting as crafting
 
 
@@ -68,7 +69,7 @@ class InventoryBase:
     def init_or_update_data():
         """Вызывается для инициализации/обновления данных"""
         InventoryBase.list_elements = list(InventoryBase.elements.values())
-        InventoryBase.action_elements = InventoryBase.list_elements[InventoryBase.index: InventoryBase.index+6]
+        InventoryBase.action_elements = InventoryBase.list_elements[InventoryBase.index: InventoryBase.index + 6]
         return InventoryBase
 
     @staticmethod
@@ -254,7 +255,7 @@ class Serum:
         tag = f"serum{Ingredient.counter}"
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop)
         self.image = ImageTk.PhotoImage(Image.open(images['serum']).resize((self.r * 2 - 80, self.r * 2 - 80)))
-        self.shape = self.canvas.create_image(self.x, self.y, image=self.image, anchor=tk.CENTER,  tags=(tag,))
+        self.shape = self.canvas.create_image(self.x, self.y, image=self.image, anchor=tk.CENTER, tags=(tag,))
         Serum.counter += 1
 
     def drag_stop(self, event):
@@ -398,25 +399,79 @@ def craft(canvas: CustomCanvas, slots):
         slots[0].set_text()
         InventoryBase.edit_amount(canvas, elem=new_ingredient, option=False)
     if crafting.Craft.count_fail_chance() < 100:
+        Statement.statement_list.append([])
         for slot in slots:
             if slot.main:
                 continue
+            Statement.statement_list[-1].append(
+                [f'{slot.ingredients[0].rarity}{slot.ingredients[0].level}x{len(slot.ingredients)}',
+                 slot.ingredients[0].image])
             for ingredient in slot.ingredients:
                 canvas.delete(ingredient.shape)
                 InventoryBase.remove_ingredient(ingredient, canvas)
             slot.ingredients.clear()
             slot.set_text()
             slot.indicator.set_state()
-
         slots[0].text_message_main_slot()
         InventoryBase.init_or_update_data()
         InventoryBase.show_slot_content(canvas=canvas)
         if isinstance(crafted_ingredient, str) and crafted_ingredient == 'Fail':
             slots[0].text_message_main_slot(crafted_ingredient)
+        try:
+            Statement.statement_list[-1].append(
+                [f'{new_ingredient.rarity}{new_ingredient.level}x{len(CraftingSlot.slots[0].ingredients)}',
+                 new_ingredient.image])
+        except Exception:
+            Statement.statement_list[-1].append(['Fail'])
+
     else:
         if crafted_ingredient != 'There are empty slots':
             slots[0].text_message_main_slot(text='   Fail chance \nis 100 percents')
         else:
             slots[0].text_message_main_slot('Slots are empty')
-
     print(crafting.Craft.check_recipe_matching())
+
+
+class Statement:
+    statement_root = None
+    flag = True
+    statement_list = []
+
+    def statement(self, root: tk.Tk):
+        if Statement.statement_root is None:
+            Statement.statement_root = scrolledtext.ScrolledText(root, width=70, height=38)
+            Statement.statement_root.pack()
+
+        if not Statement.flag:
+            Statement.statement_root.place(x=-752, y=-99)
+            Statement.statement_root.destroy()
+            Statement.statement_root = None
+            Statement.flag = True
+
+        else:
+            Statement.statement_root.place(x=670, y=99)
+            Statement.flag = False
+
+            for elems_list in Statement.statement_list:
+                frame = tk.Frame(Statement.statement_root)
+                for j, elem_list in enumerate(elems_list[:-1]):
+                    label_text = tk.Label(frame, text=elem_list[0])
+                    label = tk.Label(frame, image=elem_list[1], width=30, borderwidth=25, bg='white')
+                    label.grid(row=0, column=j, padx=20, pady=10)
+                    label_text.grid(row=1, column=j, padx=20, pady=10)
+
+                label_text = tk.Label(frame, text='--->')
+                label_text.grid(row=0, column=j+1, padx=20, pady=10)
+
+                try:
+                    label_text = tk.Label(frame, text=elems_list[-1][0])
+                    label = tk.Label(frame, image=elems_list[-1][1], width=45, borderwidth=25, bg='white')
+                    label.grid(row=0, column=j+2, padx=20, pady=10)
+                    label_text.grid(row=1, column=j+2, padx=20, pady=10)
+                except IndexError:
+                    label_text = tk.Label(frame, text='FAIL', bg='red', width=12)
+                    label_text.grid(row=0, column=j+2, padx=20, pady=10)
+
+                Statement.statement_root.window_create(tk.END, window=frame)
+    
+

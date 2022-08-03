@@ -9,8 +9,8 @@ from items import (
     Button,
     CraftingSlot,
     SerumSlot,
-    Serum,
     craft,
+    Statement,
 )
 from config import win_width, win_height, win_bg_color
 from craft.crafting import Craft
@@ -22,6 +22,7 @@ root['bg'] = win_bg_color
 
 canvas = CustomCanvas(root, win_width, win_height)
 canvas.place(x=-1, y=-1)
+statement = Statement()
 
 canvas.create_text(100, 50, text='craft', fill='red', font='Tahoma 30')  # header
 canvas.create_text(500, 150, text='Laboratory', fill='red', font='Tahoma 25')  # laboratory header
@@ -34,6 +35,10 @@ button_craft = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40
 # Scroll buttons
 button_up = Button(canvas, x=325, y=100, w=25, h=50, text="ᐱ", action=inventory.up)
 button_down = Button(canvas, x=325, y=win_height - 100, w=25, h=50, text="ᐯ", action=inventory.down)
+
+button_statement = Button(canvas, x=win_width-180, y=50, w=150, h=40, text="Statement",
+                          action=lambda: statement.statement(root))
+
 
 main_slot = CraftingSlot(
     canvas,
@@ -98,7 +103,6 @@ ings = [
     *[('E', 3) for _ in range(10)],
     *[('E', 4) for _ in range(10)],
 ]
-
 for i, ing in enumerate(ings):
     Ingredient(
         canvas=canvas,
