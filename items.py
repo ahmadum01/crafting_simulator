@@ -330,6 +330,14 @@ class Ingredient(InventoryBase):
         self.canvas.drag_stop(event)
 
     def move_to_slot(self):
+        if any(CraftingSlot.slots[0].ingredients):
+            for elem in CraftingSlot.slots[0].ingredients:
+                CraftingSlot.slots[0].ingredients.remove(elem)
+                InventoryBase.check_in_action_elements(elem)
+                elem.canvas.moveto(elem.shape, elem.x, elem.y)
+                InventoryBase.edit_amount(elem.canvas, elem, option=True)
+                CraftingSlot.update_slots_data()
+
         if self.slot is None:
             self.canvas.moveto(self.shape, self.x, self.y)
         else:
@@ -434,13 +442,15 @@ def craft(canvas: CustomCanvas, slots):
         except Exception:
             Statement.statement_list[-1].append(['Fail'])
 
-
+        colors = crafting.Craft.check_recipe_matching()
+        Statement.statement_list[-1][0].append(colors.slot1.value)
+        Statement.statement_list[-1][1].append(colors.slot2.value)
+        Statement.statement_list[-1][2].append(colors.slot3.value)
     else:
         if crafted_element != 'There are empty slots':
             slots[0].text_message_main_slot(text='   Fail chance \nis 100 percents')
         else:
             slots[0].text_message_main_slot('Slots are empty')
-    print(crafting.Craft.check_recipe_matching())
 
 
 class Statement:
@@ -467,7 +477,7 @@ class Statement:
                 frame = tk.Frame(Statement.statement_root)
                 for j, elem_list in enumerate(elems_list[:-1]):
                     label_text = tk.Label(frame, text=elem_list[0])
-                    label = tk.Label(frame, image=elem_list[1], width=30, borderwidth=25, bg='white')
+                    label = tk.Label(frame, image=elem_list[1], width=30, borderwidth=25, bg=elem_list[2])
                     label.grid(row=0, column=j, padx=20, pady=10)
                     label_text.grid(row=1, column=j, padx=20, pady=10)
 
