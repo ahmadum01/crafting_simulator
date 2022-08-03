@@ -164,7 +164,6 @@ class Craft:
 
         if not Craft.is_craft_possible():
             return 'Fail chance is 100 percents'
-        print(Craft.count_fail_chance())
 
         if Craft.is_fail(Craft.count_fail_chance()):
             return 'Fail'

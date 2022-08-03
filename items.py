@@ -263,9 +263,7 @@ class Serum:
 
     def drag_stop(self, event):
         self.canvas.moveto(self.shape, SerumSlot.slots[0].x1 - 10, SerumSlot.slots[0].y1 - 10)
-        print(CraftingSlot.slots[0].ingredients)
         CraftingSlot.slots[0].ingredients.remove(self)
-        print(CraftingSlot.slots[0].ingredients)
         SerumSlot.slots[0].set_text()
         CraftingSlot.update_slots_data()
 
