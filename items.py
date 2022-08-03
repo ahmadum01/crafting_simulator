@@ -285,17 +285,14 @@ class Ingredient(InventoryBase):
         InventoryBase.elements[f'{rarity}{level}']['amount'] += 1
         InventoryBase.elements[f'{rarity}{level}']['elems'].append(self)
 
-    def check_move_to_back(self):
-        self.canvas.moveto(self.shape, self.x, self.y)
-
-    def intersects(self, slot):
+    def intersects(self, slot: CraftingSlot) -> bool:
         x, y = self.canvas.coords(self.shape)
         return ((slot.x - x) ** 2 + (slot.y - y) ** 2) ** 0.5 <= slot.r + self.r
 
-    def equals(self, other):
+    def equals(self, other: 'Ingredient') -> bool:
         return other.level == self.level and other.rarity == self.rarity
 
-    def is_slot_suitable(self, slot):
+    def is_slot_suitable(self, slot: CraftingSlot) -> bool:
         return (not slot.ingredients or self.equals(slot.ingredients[0])) and len(slot.ingredients) < 5
 
     def drag_stop(self, event):
@@ -384,13 +381,15 @@ class Indicator:
 
 
 def craft(canvas: CustomCanvas, slots):
+    for slot in slots[1:]:
+        if slot.ingredients[0].level > 3:
+            print('Крафтинг серума пока не реализован')
+            return
     crafting.Craft.init_slots(
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[1].ingredients]),
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[2].ingredients]),
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[3].ingredients]),
     )
-
-    # print(f'Fail chance: {crafting.Craft.count_fail_chance()}')
     crafted_ingredient = crafting.Craft.craft()
     if isinstance(crafted_ingredient, crafting.Ingredient):
         new_ingredient = Ingredient(canvas, rarity=crafted_ingredient.rarity, level=crafted_ingredient.level)
@@ -430,6 +429,7 @@ def craft(canvas: CustomCanvas, slots):
             slots[0].text_message_main_slot(text='   Fail chance \nis 100 percents')
         else:
             slots[0].text_message_main_slot('Slots are empty')
+    print(crafting.Craft.check_recipe_matching())
 
 
 class Statement:
@@ -473,3 +473,5 @@ class Statement:
                     label_text.grid(row=0, column=j+2, padx=20, pady=10)
 
                 Statement.statement_root.window_create(tk.END, window=frame)
+    
+
