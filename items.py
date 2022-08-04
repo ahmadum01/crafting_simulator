@@ -208,7 +208,7 @@ class CraftingSlot:
             self.indicator = Indicator(canvas, self)
         else:
             self.text_message = self.canvas.create_text(self.x, self.y - 15, text='',
-                                                        font='Tahoma 16', fill='red', justify=tk.CENTER)
+                                                        font='Tahoma 16', fill=COLOR_TEXT_MAIN_SLOT, justify=tk.CENTER)
         self.ingredients = []
         self.slots.append(self)
 
