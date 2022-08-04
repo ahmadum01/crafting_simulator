@@ -102,15 +102,14 @@ class InventoryBase:
     def remove_empty_elements(element: 'Ingredient'):
         if not InventoryBase.elements[f'{element.rarity}{element.level}']['elems']:
             InventoryBase.elements.pop(f'{element.rarity}{element.level}')
-            InventoryBase.index -= 1
+            if InventoryBase.index - 1 != -1:
+                InventoryBase.index -= 1
 
     @staticmethod
     def remove_ingredient(element: 'Ingredient', canvas: CustomCanvas):
         InventoryBase.elements[f'{element.rarity}{element.level}']['elems'].remove(element)
 
         InventoryBase.remove_empty_elements(element)
-
-        print(InventoryBase.elements, InventoryBase.action_elements, InventoryBase.list_elements)
 
         if len(InventoryBase.list_elements) <= 6:
             InventoryBase.action_elements = InventoryBase.list_elements
