@@ -1,4 +1,6 @@
 import tkinter as tk
+
+import config
 from items import (
     CustomCanvas,
     Inventory,
@@ -19,6 +21,7 @@ root = tk.Tk()
 root.geometry(f'{win_width}x{win_height}')
 root.title('dare2defi-MAC-internal')
 root['bg'] = win_bg_color
+
 
 canvas = CustomCanvas(root, win_width, win_height)
 canvas.place(x=-1, y=-1)

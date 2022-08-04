@@ -1,7 +1,14 @@
 import tkinter as tk
 from tkinter import scrolledtext
 from PIL import Image, ImageTk
-from config import images, win_bg_color, win_width, win_height
+from config import (images,
+                    win_bg_color,
+                    win_width,
+                    win_height,
+                    COLOR_TEXT,
+                    COLOR_FRAME,
+                    COLOR_TEXT_STATEMENT,
+                    COLOR_TEXT_MAIN_SLOT)
 import craft.crafting as crafting
 
 
@@ -138,7 +145,7 @@ class InventoryBase:
 class Inventory(InventoryBase):
     def __init__(self, canvas: CustomCanvas, x1=30, y1=100, x2=350, y2=750):
         self.canvas = canvas
-        self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
+        self.canvas.create_rectangle(x1, y1, x2, y2, width=2, outline=COLOR_FRAME)
 
     def up(self):
         if InventoryBase.index - 1 != -1:
@@ -162,7 +169,7 @@ class Laboratory:
         self.x2 = x2
         self.y2 = y2
         self.canvas = canvas
-        self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
+        self.canvas.create_rectangle(x1, y1, x2, y2, width=2, outline=COLOR_FRAME)
 
 
 class InventorySlot(InventoryBase):
@@ -170,15 +177,15 @@ class InventorySlot(InventoryBase):
         self.x1 = x1
         self.y1 = y1
         self.canvas = canvas
-        self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
-        self.text = self.canvas.create_text(self.x1 + 150, self.y1 + 45, text='', font='Tahoma 14', fill='#242424')
+        self.canvas.create_rectangle(x1, y1, x2, y2, width=2, outline=COLOR_FRAME)
+        self.text = self.canvas.create_text(self.x1 + 150, self.y1 + 45, text='', font='Tahoma 14', fill=COLOR_TEXT)
         self.flag = False
 
     def set_text(self, lvl='', rarity='', amount=''):
         text = ''
         if self.flag:
             text += f'Level: {lvl}\nRarity: {rarity}\nAmount: {amount}'
-        self.canvas.itemconfig(self.text, text=text)
+        self.canvas.itemconfig(self.text, text=text, fill=COLOR_TEXT)
 
 
 class CraftingSlot:
@@ -190,12 +197,13 @@ class CraftingSlot:
         self.y = y
         self.r = r
         self.main = main
-        self.shape = self.canvas.create_oval(x - r, y - r, x + r, y + r, width=2, fill='#3914AF')
+        self.shape = self.canvas.create_oval(x - r, y - r, x + r, y + r, width=2, fill='#3914AF', outline=COLOR_FRAME)
         if main:
             self.text = self.canvas.create_text(self.x, self.y + self.r * 1.40, text='',
-                                                font='Tahoma 12', justify=tk.CENTER)
+                                                font='Tahoma 12', justify=tk.CENTER, fill=COLOR_TEXT)
         else:
-            self.text = self.canvas.create_text(self.x, self.y + self.r * 1.55, text='', font='Tahoma 10')
+            self.text = self.canvas.create_text(self.x, self.y + self.r * 1.55, text='', font='Tahoma 10',
+                                                fill=COLOR_TEXT)
         if not main:
             self.indicator = Indicator(canvas, self)
         else:
@@ -215,10 +223,10 @@ class CraftingSlot:
 
             if self.main:
                 text += f'x{len(self.ingredients)}'
-        self.canvas.itemconfig(self.text, text=text)
+        self.canvas.itemconfig(self.text, text=text, fill=COLOR_TEXT)
 
     def text_message_main_slot(self, text=''):
-        self.canvas.itemconfig(self.text_message, text=text)
+        self.canvas.itemconfig(self.text_message, text=text, fill=COLOR_TEXT)
 
     # @staticmethod
     # def clear_main_slot():
@@ -244,15 +252,16 @@ class SerumSlot:
         self.r = CraftingSlot.slots[1].r
         self.canvas = canvas
         self.serums = []
-        self.shape = self.canvas.create_rectangle(x1, y1, x2, y2, width=2)
+        self.shape = self.canvas.create_rectangle(x1, y1, x2, y2, width=2, outline=COLOR_FRAME)
         text_message = f'Serum\nAmount: {Serum.counter}'
-        self.text = self.canvas.create_text(self.x1 + 140, self.y1 + 50, text=text_message, font='Tahoma 14')
+        self.text = self.canvas.create_text(self.x1 + 140, self.y1 + 50, text=text_message, font='Tahoma 14',
+                                            fill=COLOR_TEXT)
         self.image = ImageTk.PhotoImage(Image.open(images['empty_serum']).resize((self.r * 2 - 50, self.r * 2 - 50)))
         self.empty_serum = self.canvas.create_image(self.x1 + 50, self.y1 + 50, image=self.image, anchor=tk.CENTER)
         SerumSlot.slots.append(self)
 
     def set_text(self):
-        self.canvas.itemconfig(self.text, text=f'Serum\nAmount: {Serum.counter}')
+        self.canvas.itemconfig(self.text, text=f'Serum\nAmount: {Serum.counter}', fill=COLOR_TEXT)
 
 
 class Serum:
@@ -381,7 +390,8 @@ class Button:
         self.default_color = '#7785a4'
         self.pressed_color = '#49536c'
         tag = f'button{Button.counter}'
-        self.shape = self.canvas.create_rectangle(x, y, x + w, y + h, fill=self.default_color, tags=(tag,))
+        self.shape = self.canvas.create_rectangle(x, y, x + w, y + h, fill=self.default_color, tags=(tag,),
+                                                  outline=COLOR_FRAME)
         self.canvas.create_text(x + w / 2, y + h / 2, text=text, fill='white', font='Tahoma 17', tags=(tag,))
         self.canvas.tag_bind(tag, "<ButtonPress-1>", self.button_pressed)
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.button_released)
@@ -410,9 +420,9 @@ class Indicator:
         self.y1 = slot.y + slot.r + self.padding
         self.x2 = slot.x + self.w / 2
         self.y2 = slot.y + self.slot.r + self.padding + self.h
-        self.shape = self.canvas.create_rectangle(self.x1, self.y1, self.x2, self.y2, fill='white')
+        self.shape = self.canvas.create_rectangle(self.x1, self.y1, self.x2, self.y2, fill='white', outline=COLOR_FRAME)
         self.inner_shape = self.canvas.create_rectangle(self.x1 + 1, self.y1 + 1, self.x1, self.y1, fill='green',
-                                                        outline='')
+                                                        outline=COLOR_FRAME)
         Indicator.indicators.append(self)
 
     def set_state(self):
@@ -428,7 +438,7 @@ class Statement:
     @staticmethod
     def statement(root: tk.Tk):
         if Statement.statement_root is None:
-            Statement.statement_root = scrolledtext.ScrolledText(root, width=70, height=38)
+            Statement.statement_root = scrolledtext.ScrolledText(root, width=70, height=38, font='Tahoma 10')
             Statement.statement_root['state'] = 'disabled'
             Statement.statement_root.pack()
 
@@ -445,21 +455,21 @@ class Statement:
             for elems_list in Statement.statement_list[::-1]:
                 frame = tk.Frame(Statement.statement_root)
                 for j, elem_list in enumerate(elems_list[:-1]):
-                    label_text = tk.Label(frame, text=elem_list[0])
+                    label_text = tk.Label(frame, text=elem_list[0], fg=COLOR_TEXT_STATEMENT)
                     label = tk.Label(frame, image=elem_list[1], width=30, borderwidth=25, bg=elem_list[2])
                     label.grid(row=0, column=j, padx=20, pady=10)
                     label_text.grid(row=1, column=j, padx=20, pady=5)
 
-                label_text = tk.Label(frame, text='--->')
+                label_text = tk.Label(frame, text='--->', fg=COLOR_TEXT_STATEMENT)
                 label_text.grid(row=0, column=j + 1, padx=20, pady=10)
 
                 try:
-                    label_text = tk.Label(frame, text=elems_list[-1][0])
+                    label_text = tk.Label(frame, text=elems_list[-1][0], fg=COLOR_TEXT_STATEMENT)
                     label = tk.Label(frame, image=elems_list[-1][1], width=45, borderwidth=25, bg='white')
                     label.grid(row=0, column=j + 2, padx=20, pady=10)
                     label_text.grid(row=1, column=j + 2, padx=20, pady=10)
                 except IndexError:
-                    label_text = tk.Label(frame, text='FAIL', bg='red', width=12)
+                    label_text = tk.Label(frame, text='FAIL', bg='red', width=12, fg=COLOR_TEXT_STATEMENT)
                     label_text.grid(row=0, column=j + 2, padx=20, pady=10)
 
                 Statement.statement_root.window_create(tk.END, window=frame)

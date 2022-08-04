@@ -1,6 +1,12 @@
 win_width, win_height = 1280, 800
 win_bg_color = 'white'  # '#403c44'
 
+COLOR_TEXT = '#242424'
+COLOR_FRAME = '#242424'
+COLOR_TEXT_MAIN_SLOT = 'red'
+COLOR_TEXT_STATEMENT = '#242424'
+
+
 image_path = 'src/images/'
 images = {
     'a': image_path + 'A.png',
