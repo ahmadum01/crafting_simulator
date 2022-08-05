@@ -112,7 +112,8 @@ class Craft:
         return 100
 
     @staticmethod
-    def count_probability_for_mix(base_probability: dict, senior_ingredient: Ingredient) -> dict:
+    def count_probability_for_mix(senior_ingredient: Ingredient) -> dict:
+        base_probability = configs.base_probabilities[senior_ingredient.rarity]
         result_probability = base_probability.copy()
         if Craft.slots[0] == Craft.slots[1] == Craft.slots[2] and len(Craft.slots[0]) == 1:
             return base_probability
@@ -125,7 +126,6 @@ class Craft:
             temp = base_probability[key] * move_probability / 100
             result_probability[key] = base_probability[key] - temp
             result_probability[senior_ingredient.rarity] += temp
-
         for slot in Craft.slots:
             if slot[0] != senior_ingredient:
                 level_diff = senior_ingredient.level - slot[0].level
@@ -135,8 +135,9 @@ class Craft:
                 for i, key in enumerate(result_probability):
                     if i == rarity_num:
                         break
-                    result_probability[key] = result_probability[key] + move_probability / 2
-                result_probability[senior_ingredient.rarity] -= move_probability
+                    result_probability[key] = result_probability[key] + move_probability / rarity_num
+                if rarity_num != 0:
+                    result_probability[senior_ingredient.rarity] -= move_probability
 
         return result_probability
 
@@ -199,8 +200,7 @@ class Craft:
             return CraftingResult(message='Fail',
                                   type='message', res=[])
 
-        base_probability = configs.base_probabilities[senior_ingredient.rarity]
-        mix_probability = Craft.count_probability_for_mix(base_probability, senior_ingredient)
+        mix_probability = Craft.count_probability_for_mix(senior_ingredient)
 
         return CraftingResult(message='Ingredient crafted success',
                               type='Ingredient',

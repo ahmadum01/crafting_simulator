@@ -548,9 +548,17 @@ def craft(canvas: CustomCanvas, slots):
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[2].ingredients]),
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[3].ingredients]),
     )
-
-    print('Fail probability was:', crafting.Craft.count_fail_chance())
-
+    fail_chance = crafting.Craft.count_fail_chance()
+    print('-' * 70)
+    print('Fail probability was:', fail_chance)
+    if crafting.Craft.is_craft_possible():
+        if not crafting.Craft.is_serum_crafts():
+            print('Ingredient probabilities:', crafting.Craft.count_probability_for_mix(crafting.Craft.get_senior_ingredient()))
+            print('Serum probability:', 0)
+        else:
+            print('Ingredient probabilities:', {'A': 70, 'B': 15, 'C': 10, 'D': 3, 'E': 2})
+            print('Serum probability:', 100 - fail_chance)
+    print('-' * 70, end='\n' * 2)
     crafted_element = crafting.Craft.craft()
     if crafted_element.type == 'Ingredient':
         for ingredient in crafted_element.res:

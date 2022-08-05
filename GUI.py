@@ -16,7 +16,6 @@ from items import (
 )
 from config import win_width, win_height, win_bg_color
 from craft.crafting import Craft
-import craft.crafting as crafting
 
 root = tk.Tk()
 root.geometry(f'{win_width}x{win_height}')
@@ -80,20 +79,6 @@ serum_slot = SerumSlot(
     x2=win_width - 30,
     y2=200
 )
-
-# left_slot_d = crafting.Slot(*[crafting.Ingredient('D', 3) for _ in range(4)])
-# bottom_slot_d = crafting.Slot(*[crafting.Ingredient('D', 1) for _ in range(3)])
-# right_slot_d = crafting.Slot(*[crafting.Ingredient('A', 1) for _ in range(1)])
-# print('Daily recipe:', [left_slot_d, bottom_slot_d, right_slot_d])
-#
-# left_slot_s = crafting.Slot(*[crafting.Ingredient('A', 2) for _ in range(1)])
-# bottom_slot_s = crafting.Slot(*[crafting.Ingredient('A', 1) for _ in range(3)])
-# right_slot_s = crafting.Slot(*[crafting.Ingredient('D', 4) for _ in range(2)])
-# print('Serum recipe:', [left_slot_s, bottom_slot_s, right_slot_s])
-#
-# Craft.set_daily_recipe(left_slot_d, bottom_slot_d, right_slot_d)
-# Craft.set_serum_crafting_recipe(left_slot_s, bottom_slot_s, right_slot_s)
-
 
 rand_daily_recipe = Craft.generate_rand_recipe()
 print('Daily recipe:', rand_daily_recipe)
