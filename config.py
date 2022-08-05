@@ -1,3 +1,4 @@
+from os import path
 win_width, win_height = 1280, 800
 win_bg_color = 'white'  # '#403c44'
 
@@ -7,13 +8,13 @@ COLOR_TEXT_MAIN_SLOT = 'red'
 COLOR_TEXT_STATEMENT = '#242424'
 
 
-image_path = 'src/images/'
+image_path = path.join('src', 'images')
 images = {
-    'a': image_path + 'A.png',
-    'b': image_path + 'B.png',
-    'c': image_path + 'C.png',
-    'd': image_path + 'D.png',
-    'e': image_path + 'E.png',
-    'serum': image_path + 'serum.png',
-    'empty_serum': image_path + 'empty_serum.png',
+    'a': path.join(image_path, 'A.png'),
+    'b': path.join(image_path, 'B.png'),
+    'c': path.join(image_path, 'C.png'),
+    'd': path.join(image_path, 'D.png'),
+    'e': path.join(image_path, 'E.png'),
+    'serum': path.join(image_path, 'serum.png'),
+    'empty_serum': path.join(image_path, 'empty_serum.png'),
 }
