@@ -264,7 +264,7 @@ class Craft:
             if slot == recipe_slots[i]:
                 slot_colors[key] = Colors.GREEN
             elif slot[0].properties == recipe_slots[i][0].properties:
-                if len(slot) < len(recipe_slots[0]):
+                if len(slot) < len(recipe_slots[i]):
                     slot_colors[key] = Colors.VIOLET
                 else:
                     slot_colors[key] = Colors.BLUE
