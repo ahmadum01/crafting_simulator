@@ -226,7 +226,7 @@ class CraftingSlot:
         self.canvas.itemconfig(self.text, text=text, fill=COLOR_TEXT)
 
     def text_message_main_slot(self, text=''):
-        self.canvas.itemconfig(self.text_message, text=text, fill=COLOR_TEXT)
+        self.canvas.itemconfig(self.text_message, text=text, fill=COLOR_TEXT_MAIN_SLOT)
 
     # @staticmethod
     # def clear_main_slot():
