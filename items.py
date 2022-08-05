@@ -556,7 +556,7 @@ def craft(canvas: CustomCanvas, slots):
             print('Ingredient probabilities:', crafting.Craft.count_probability_for_mix(crafting.Craft.get_senior_ingredient()))
             print('Serum probability:', 0)
         else:
-            print('Ingredient probabilities:', {'A': 70, 'B': 15, 'C': 10, 'D': 3, 'E': 2})
+            print('Ingredient probabilities:', {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0})
             print('Serum probability:', 100 - fail_chance)
     print('-' * 70, end='\n' * 2)
     crafted_element = crafting.Craft.craft()
