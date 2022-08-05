@@ -16,6 +16,7 @@ from items import (
 )
 from config import win_width, win_height, win_bg_color
 from craft.crafting import Craft
+import craft.crafting as crafting
 
 root = tk.Tk()
 root.geometry(f'{win_width}x{win_height}')
@@ -80,6 +81,21 @@ serum_slot = SerumSlot(
     y2=200
 )
 
+# left_slot_d = crafting.Slot(*[crafting.Ingredient('B', 1) for _ in range(1)])
+# bottom_slot_d = crafting.Slot(*[crafting.Ingredient('E', 4) for _ in range(4)])
+# right_slot_d = crafting.Slot(*[crafting.Ingredient('C', 2) for _ in range(3)])
+# print('Daily recipe:', [left_slot_d, bottom_slot_d, right_slot_d])
+#
+# left_slot_s = crafting.Slot(*[crafting.Ingredient('B', 1) for _ in range(1)])
+# bottom_slot_s = crafting.Slot(*[crafting.Ingredient('E', 4) for _ in range(4)])
+# right_slot_s = crafting.Slot(*[crafting.Ingredient('C', 2) for _ in range(3)])
+# print('Serum recipe:', [left_slot_s, bottom_slot_s, right_slot_s])
+
+# Craft.set_daily_recipe(left_slot_d, bottom_slot_d, right_slot_d)
+# Craft.set_serum_crafting_recipe(left_slot_s, bottom_slot_s, right_slot_s)
+
+##  Вернуть на место ##
+
 rand_daily_recipe = Craft.generate_rand_recipe()
 print('Daily recipe:', rand_daily_recipe)
 Craft.set_daily_recipe(*rand_daily_recipe)  # Set daly recipe
@@ -88,26 +104,26 @@ print('Serum recipe:', rand_serum_recipe)
 Craft.set_serum_crafting_recipe(*rand_serum_recipe)  # Set serum recipe
 
 ings = [
-    *[('A', 1) for _ in range(3)],
-    *[('A', 2) for _ in range(10)],
-    *[('A', 3) for _ in range(3)],
-    *[('A', 4) for _ in range(3)],
-    *[('B', 1) for _ in range(10)],
-    *[('B', 2) for _ in range(10)],
-    *[('B', 3) for _ in range(10)],
-    *[('B', 4) for _ in range(10)],
-    *[('C', 1) for _ in range(10)],
-    *[('C', 2) for _ in range(10)],
-    *[('C', 3) for _ in range(10)],
-    *[('C', 4) for _ in range(10)],
-    *[('D', 1) for _ in range(10)],
-    *[('D', 2) for _ in range(10)],
-    *[('D', 3) for _ in range(10)],
-    *[('D', 4) for _ in range(10)],
-    *[('E', 1) for _ in range(10)],
-    *[('E', 2) for _ in range(10)],
-    *[('E', 3) for _ in range(10)],
-    *[('E', 4) for _ in range(10)],
+    *[('A', 1) for _ in range(30)],
+    *[('A', 2) for _ in range(30)],
+    *[('A', 3) for _ in range(30)],
+    *[('A', 4) for _ in range(30)],
+    *[('B', 1) for _ in range(30)],
+    *[('B', 2) for _ in range(30)],
+    *[('B', 3) for _ in range(30)],
+    *[('B', 4) for _ in range(30)],
+    *[('C', 1) for _ in range(30)],
+    *[('C', 2) for _ in range(30)],
+    *[('C', 3) for _ in range(30)],
+    *[('C', 4) for _ in range(30)],
+    *[('D', 1) for _ in range(30)],
+    *[('D', 2) for _ in range(30)],
+    *[('D', 3) for _ in range(30)],
+    *[('D', 4) for _ in range(30)],
+    *[('E', 1) for _ in range(30)],
+    *[('E', 2) for _ in range(30)],
+    *[('E', 3) for _ in range(30)],
+    *[('E', 4) for _ in range(30)],
 ]
 for i, ing in enumerate(ings):
     Ingredient(

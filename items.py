@@ -306,7 +306,9 @@ class Ingredient(InventoryBase):
         tag = f"token{Ingredient.counter}"
         self.shape = self.canvas.create_image(x, y, image=self.image, anchor=tk.CENTER, tags=(tag,), )
         self.canvas.bind_ingredient(tag)
+        self.canvas.tag_bind(tag, "<Double-Button-1>", self.double_clicked, "+")
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop, "+")
+
         Ingredient.counter += 1
         if f'{rarity}{level}' not in InventoryBase.elements:
             InventoryBase.elements[f'{rarity}{level}'] = {'elems': [], 'rarity': rarity, 'amount': 0, 'level': level}
@@ -323,6 +325,23 @@ class Ingredient(InventoryBase):
     def is_slot_suitable(self, slot: CraftingSlot) -> bool:
         return (not slot.ingredients or self.equals(slot.ingredients[0])) and len(slot.ingredients) < 5
 
+    def double_clicked(self, event):
+        if self.slot is None:
+            for slot in CraftingSlot.slots[1:]:
+                if self.is_slot_suitable(slot):
+                    InventoryBase.edit_amount(canvas=self.canvas, elem=self)
+                    if self not in slot.ingredients:
+                        slot.ingredients.append(self)
+                        self.slot = slot
+                    self.move_to_slot()
+                    break
+        else:
+            self.slot.ingredients.remove(self)
+            InventoryBase.edit_amount(canvas=self.canvas, elem=self, option=True)
+            self.slot = None
+            InventoryBase.check_in_action_elements(elem=self)
+            self.move_to_slot()
+
     def drag_stop(self, event):
         intersected_slot = None
         for crafting_slot in CraftingSlot.slots:
@@ -335,12 +354,13 @@ class Ingredient(InventoryBase):
                 self.slot.ingredients.remove(self)
                 InventoryBase.edit_amount(canvas=self.canvas, elem=self, option=True)
                 self.slot = None
+                InventoryBase.check_in_action_elements(elem=self)
                 self.move_to_slot()
             else:
                 self.slot = None
+                InventoryBase.check_in_action_elements(elem=self)
                 self.move_to_slot(clear_main_slot=False)
 
-            InventoryBase.check_in_action_elements(elem=self)
             CraftingSlot.slots[0].text_message_main_slot()
 
         elif self.is_slot_suitable(intersected_slot):  # Если ингредиент пересекает слот и этот слот подходит
@@ -437,11 +457,12 @@ class Statement:
     statement_list = []
     canvas_w, canvas_h = 80, 90
     bg = 'white'
+
     @staticmethod
     def statement(root: tk.Tk):
 
         if Statement.statement_root is None:
-            Statement.main_frame = tk.Frame(root, width=10, bg=Statement.bg)
+            Statement.main_frame = tk.Frame(root, width=10, bg=Statement.bg, bd=0)
             Statement.statement_root = scrolledtext.ScrolledText(Statement.main_frame)
             Statement.statement_root['state'] = 'disabled'
 
@@ -457,30 +478,30 @@ class Statement:
             Statement.flag = False
 
             for elems_list in Statement.statement_list[::-1]:
-                frame = tk.Frame(Statement.statement_root, bg=Statement.bg)
+                frame = tk.Frame(Statement.statement_root, bg=Statement.bg, bd=0)
                 for j, param_list in enumerate(elems_list[:-1]):
                     label_text = tk.Label(frame, text=param_list[0], fg=COLOR_TEXT_STATEMENT, bg=Statement.bg)
-                    canvas = tk.Canvas(frame, width=Statement.canvas_w, height=Statement.canvas_h)
+                    canvas = tk.Canvas(frame, width=Statement.canvas_w, height=Statement.canvas_h, bd=0)
                     canvas.create_rectangle(0, 0, Statement.canvas_w, Statement.canvas_h / 2, fill=param_list[2])
                     canvas.create_rectangle(0, Statement.canvas_h / 2, Statement.canvas_w, Statement.canvas_h, fill=param_list[3])
                     canvas.create_image(Statement.canvas_w / 2, Statement.canvas_h / 2, image=param_list[1], anchor=tk.CENTER)
                     canvas.grid(row=0, column=j, padx=20, pady=10)
                     label_text.grid(row=1, column=j, padx=20, pady=1)
 
-                label_text = tk.Label(frame, text='--->', fg=COLOR_TEXT_STATEMENT, bg=Statement.bg)
+                label_text = tk.Label(frame, text='--->', fg=COLOR_TEXT_STATEMENT, bg=Statement.bg, bd=0)
                 label_text.grid(row=0, column=j + 1, padx=20, pady=10)
 
                 try:
-                    label_text = tk.Label(frame, text=elems_list[-1][0], fg=COLOR_TEXT_STATEMENT, bg=Statement.bg)
+                    label_text = tk.Label(frame, text=elems_list[-1][0], fg=COLOR_TEXT_STATEMENT, bg=Statement.bg, bd=0)
                     label_text.grid(row=1, column=j + 2, padx=20, pady=1)
 
-                    canvas = tk.Canvas(frame, width=Statement.canvas_w, height=Statement.canvas_h, bg='white')
+                    canvas = tk.Canvas(frame, width=Statement.canvas_w, height=Statement.canvas_h, bg='white', bd=0)
                     canvas.create_image(Statement.canvas_w / 2, Statement.canvas_h / 2, image=elems_list[-1][1],
                                         anchor=tk.CENTER)
                     canvas.grid(row=0, column=j + 2, padx=20, pady=10)
 
                 except IndexError:
-                    canvas = tk.Canvas(frame, width=Statement.canvas_w, height=Statement.canvas_h, bg='red')
+                    canvas = tk.Canvas(frame, width=Statement.canvas_w, height=Statement.canvas_h, bg='red', bd=0)
                     canvas.create_text(Statement.canvas_w / 2, Statement.canvas_h / 2, text='FAIL', fill=COLOR_TEXT_STATEMENT)
                     canvas.grid(row=0, column=j + 2, padx=20, pady=10)
 
