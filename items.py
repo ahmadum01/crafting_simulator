@@ -550,14 +550,14 @@ def craft(canvas: CustomCanvas, slots):
             slots[0].text_message_main_slot(crafted_element.message)
     if crafting.Craft.is_craft_possible():
         Statement.create_statement(crafted_element)
-    for slot in slots:
-        if not slot.main:
-            for ingredient in slot.ingredients:
-                canvas.delete(ingredient.shape)
-                InventoryBase.remove_ingredient(ingredient, canvas)
-            slot.ingredients.clear()
-            slot.indicator.set_state()
-        slot.set_text()
+        for slot in slots:
+            if not slot.main:
+                for ingredient in slot.ingredients:
+                    canvas.delete(ingredient.shape)
+                    InventoryBase.remove_ingredient(ingredient, canvas)
+                slot.ingredients.clear()
+                slot.indicator.set_state()
+            slot.set_text()
 
     InventoryBase.init_or_update_data()
     InventoryBase.show_slot_content(canvas=canvas)
