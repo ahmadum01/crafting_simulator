@@ -228,10 +228,6 @@ class CraftingSlot:
     def text_message_main_slot(self, text=''):
         self.canvas.itemconfig(self.text_message, text=text, fill=COLOR_TEXT_MAIN_SLOT)
 
-    # @staticmethod
-    # def clear_main_slot():
-    #     for element in CraftingSlot.slots[0].ingredients:
-    #         element.move_to_slot()
 
     @staticmethod
     def update_slots_data():
@@ -357,6 +353,9 @@ class Ingredient(InventoryBase):
                 self.slot = intersected_slot
             self.move_to_slot()
 
+        else:
+            self.move_to_slot()
+
         CraftingSlot.update_slots_data()  # Обновляем все индикаторы, тексты и т.д.
 
         self.canvas.drag_stop(event)
@@ -431,46 +430,59 @@ class Indicator:
 
 
 class Statement:
+    main_frame = None
     statement_root = None
+
     flag = True
     statement_list = []
-
+    canvas_w, canvas_h = 80, 90
+    bg = 'white'
     @staticmethod
     def statement(root: tk.Tk):
+
         if Statement.statement_root is None:
-            Statement.statement_root = scrolledtext.ScrolledText(root, width=70, height=38, font='Tahoma 10')
+            Statement.main_frame = tk.Frame(root, width=10, bg=Statement.bg)
+            Statement.statement_root = scrolledtext.ScrolledText(Statement.main_frame)
             Statement.statement_root['state'] = 'disabled'
-            Statement.statement_root.pack()
 
         if not Statement.flag:
-            Statement.statement_root.place(x=-752, y=-99)
-            Statement.statement_root.destroy()
+            Statement.main_frame.destroy()
+
             Statement.statement_root = None
             Statement.flag = True
 
         else:
-            Statement.statement_root.place(x=670, y=99)
+            Statement.main_frame.place(x=win_width - 30, y=99, width=570, height=649, anchor=tk.NE)
+            Statement.statement_root.pack(fill=tk.BOTH, expand=1)
             Statement.flag = False
 
             for elems_list in Statement.statement_list[::-1]:
-                frame = tk.Frame(Statement.statement_root)
-                for j, elem_list in enumerate(elems_list[:-1]):
-                    label_text = tk.Label(frame, text=elem_list[0], fg=COLOR_TEXT_STATEMENT)
-                    label = tk.Label(frame, image=elem_list[1], width=30, borderwidth=25, bg=elem_list[2])
-                    label.grid(row=0, column=j, padx=20, pady=10)
-                    label_text.grid(row=1, column=j, padx=20, pady=5)
+                frame = tk.Frame(Statement.statement_root, bg=Statement.bg)
+                for j, param_list in enumerate(elems_list[:-1]):
+                    label_text = tk.Label(frame, text=param_list[0], fg=COLOR_TEXT_STATEMENT, bg=Statement.bg)
+                    canvas = tk.Canvas(frame, width=Statement.canvas_w, height=Statement.canvas_h)
+                    canvas.create_rectangle(0, 0, Statement.canvas_w, Statement.canvas_h / 2, fill=param_list[2])
+                    canvas.create_rectangle(0, Statement.canvas_h / 2, Statement.canvas_w, Statement.canvas_h, fill=param_list[3])
+                    canvas.create_image(Statement.canvas_w / 2, Statement.canvas_h / 2, image=param_list[1], anchor=tk.CENTER)
+                    canvas.grid(row=0, column=j, padx=20, pady=10)
+                    label_text.grid(row=1, column=j, padx=20, pady=1)
 
-                label_text = tk.Label(frame, text='--->', fg=COLOR_TEXT_STATEMENT)
+                label_text = tk.Label(frame, text='--->', fg=COLOR_TEXT_STATEMENT, bg=Statement.bg)
                 label_text.grid(row=0, column=j + 1, padx=20, pady=10)
 
                 try:
-                    label_text = tk.Label(frame, text=elems_list[-1][0], fg=COLOR_TEXT_STATEMENT)
-                    label = tk.Label(frame, image=elems_list[-1][1], width=45, borderwidth=25, bg='white')
-                    label.grid(row=0, column=j + 2, padx=20, pady=10)
-                    label_text.grid(row=1, column=j + 2, padx=20, pady=10)
+                    label_text = tk.Label(frame, text=elems_list[-1][0], fg=COLOR_TEXT_STATEMENT, bg=Statement.bg)
+                    label_text.grid(row=1, column=j + 2, padx=20, pady=1)
+
+                    canvas = tk.Canvas(frame, width=Statement.canvas_w, height=Statement.canvas_h, bg='white')
+                    canvas.create_image(Statement.canvas_w / 2, Statement.canvas_h / 2, image=elems_list[-1][1],
+                                        anchor=tk.CENTER)
+                    canvas.grid(row=0, column=j + 2, padx=20, pady=10)
+
                 except IndexError:
-                    label_text = tk.Label(frame, text='FAIL', bg='red', width=12, fg=COLOR_TEXT_STATEMENT)
-                    label_text.grid(row=0, column=j + 2, padx=20, pady=10)
+                    canvas = tk.Canvas(frame, width=Statement.canvas_w, height=Statement.canvas_h, bg='red')
+                    canvas.create_text(Statement.canvas_w / 2, Statement.canvas_h / 2, text='FAIL', fill=COLOR_TEXT_STATEMENT)
+                    canvas.grid(row=0, column=j + 2, padx=20, pady=10)
 
                 Statement.statement_root.window_create(tk.END, window=frame)
 
@@ -485,10 +497,16 @@ class Statement:
                 [f'{slot.ingredients[0].rarity}{slot.ingredients[0].level}x{len(slot.ingredients)}',
                  slot.ingredients[0].image]
             )
-        colors = crafting.Craft.check_recipe_matching()
-        Statement.statement_list[-1][0].append(colors.slot1.value)
-        Statement.statement_list[-1][1].append(colors.slot2.value)
-        Statement.statement_list[-1][2].append(colors.slot3.value)
+        colors_daily_recipe = crafting.Craft.check_recipe_matching()
+        Statement.statement_list[-1][0].append(colors_daily_recipe.slot1.value)
+        Statement.statement_list[-1][1].append(colors_daily_recipe.slot2.value)
+        Statement.statement_list[-1][2].append(colors_daily_recipe.slot3.value)
+
+        colors_serum_recipe = crafting.Craft.check_recipe_matching(serum=True)
+        Statement.statement_list[-1][0].append(colors_serum_recipe.slot1.value)
+        Statement.statement_list[-1][1].append(colors_serum_recipe.slot2.value)
+        Statement.statement_list[-1][2].append(colors_serum_recipe.slot3.value)
+
         if crafted_element.type == 'Ingredient':
             statements[-1].append(
                 [f'{crafted_element.res[0].rarity}{crafted_element.res[0].level}x{len(crafted_element.res)}',
@@ -509,6 +527,9 @@ def craft(canvas: CustomCanvas, slots):
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[2].ingredients]),
         crafting.Slot(*[crafting.Ingredient(rarity=ing.rarity, level=ing.level) for ing in slots[3].ingredients]),
     )
+
+    print('Fail probability was:', crafting.Craft.count_fail_chance())
+
     crafted_element = crafting.Craft.craft()
     if crafted_element.type == 'Ingredient':
         for ingredient in crafted_element.res:
@@ -527,7 +548,8 @@ def craft(canvas: CustomCanvas, slots):
             slots[0].text_message_main_slot(crafted_element.message.replace('are ', 'are\n'))
         else:
             slots[0].text_message_main_slot(crafted_element.message)
-    Statement.create_statement(crafted_element)
+    if crafting.Craft.is_craft_possible():
+        Statement.create_statement(crafted_element)
     for slot in slots:
         if not slot.main:
             for ingredient in slot.ingredients:
