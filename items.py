@@ -377,7 +377,8 @@ class Ingredient(InventoryBase):
             self.move_to_slot()
 
         CraftingSlot.update_slots_data()  # Обновляем все индикаторы, тексты и т.д.
-
+        InventoryBase.init_or_update_data()
+        InventoryBase.show_slot_content(canvas=self.canvas)
         self.canvas.drag_stop(event)
 
     def move_to_slot(self, clear_main_slot=True):
