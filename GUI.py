@@ -32,12 +32,12 @@ canvas.create_text(500, 150, text='Laboratory', fill='red', font='Tahoma 25')  #
 inventory = Inventory(canvas, 30, 100, 350, 750)
 laboratory = Laboratory(canvas, 370, 100, win_width - 30, 750)
 
-button_craft = Button(canvas, x=win_width - 150, y=win_height - 100, w=100, h=40, text="craft",
+button_craft = Button(canvas, x=win_width - 300, y=50, w=100, h=40, text="craft",
                       action=lambda: craft(canvas, CraftingSlot.slots))
 
 # Scroll buttons
 button_up = Button(canvas, x=325, y=100, w=25, h=50, text="ᐱ", action=inventory.up)
-button_down = Button(canvas, x=325, y=win_height - 100, w=25, h=50, text="ᐯ", action=inventory.down)
+button_down = Button(canvas, x=325, y=150, w=25, h=50, text="ᐯ", action=inventory.down)
 
 button_statement = Button(canvas, x=win_width-180, y=50, w=150, h=40, text="Statement",
                           action=lambda: statement.statement(root))
@@ -88,26 +88,26 @@ print('Serum recipe:', rand_serum_recipe)
 Craft.set_serum_crafting_recipe(*rand_serum_recipe)  # Set serum recipe
 
 ings = [
-    *[('A', 1) for _ in range(30)],
-    *[('A', 2) for _ in range(30)],
-    *[('A', 3) for _ in range(30)],
-    *[('A', 4) for _ in range(30)],
-    *[('B', 1) for _ in range(30)],
-    *[('B', 2) for _ in range(30)],
-    *[('B', 3) for _ in range(30)],
-    *[('B', 4) for _ in range(30)],
-    *[('C', 1) for _ in range(30)],
-    *[('C', 2) for _ in range(30)],
-    *[('C', 3) for _ in range(30)],
-    *[('C', 4) for _ in range(30)],
-    *[('D', 1) for _ in range(30)],
-    *[('D', 2) for _ in range(30)],
-    *[('D', 3) for _ in range(30)],
-    *[('D', 4) for _ in range(30)],
-    *[('E', 1) for _ in range(30)],
-    *[('E', 2) for _ in range(30)],
-    *[('E', 3) for _ in range(30)],
-    *[('E', 4) for _ in range(30)],
+    *[('A', 1) for _ in range(6)],
+    # *[('A', 2) for _ in range(30)],
+    # *[('A', 3) for _ in range(30)],
+    # *[('A', 4) for _ in range(30)],
+    # *[('B', 1) for _ in range(30)],
+    # *[('B', 2) for _ in range(30)],
+    # *[('B', 3) for _ in range(30)],
+    # *[('B', 4) for _ in range(30)],
+    # *[('C', 1) for _ in range(30)],
+    # *[('C', 2) for _ in range(30)],
+    # *[('C', 3) for _ in range(30)],
+    # *[('C', 4) for _ in range(30)],
+    # *[('D', 1) for _ in range(30)],
+    # *[('D', 2) for _ in range(30)],
+    # *[('D', 3) for _ in range(30)],
+    # *[('D', 4) for _ in range(30)],
+    # *[('E', 1) for _ in range(30)],
+    # *[('E', 2) for _ in range(30)],
+    # *[('E', 3) for _ in range(30)],
+    # *[('E', 4) for _ in range(30)],
 ]
 for i, ing in enumerate(ings):
     Ingredient(

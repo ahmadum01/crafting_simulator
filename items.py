@@ -137,7 +137,7 @@ class InventoryBase:
     @staticmethod
     def check_in_action_elements(elem: 'Ingredient'):
         l = [f'{elem["rarity"]}{elem["level"]}' for elem in InventoryBase.action_elements]
-        if f'{elem.rarity}{elem.level}' not in l:
+        if f'{elem.rarity}{elem.level}' not in l and len(InventoryBase.elements) > 5:
             elem.x = -100
             elem.y = -100
 
