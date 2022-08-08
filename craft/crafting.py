@@ -35,6 +35,9 @@ class Ingredient:
     def __eq__(self, other):
         return self.rarity == other.rarity and self.level == other.level
 
+    def __hash__(self):
+        return hash(self.properties)
+
 
 class Serum:
     def __repr__(self):
@@ -280,9 +283,16 @@ class Craft:
 
 
 if __name__ == '__main__':
-    left_slot = Slot(*[Ingredient('B', 1) for _ in range(1)])
-    bottom_slot = Slot(*[Ingredient('E', 4) for _ in range(4)])
-    right_slot = Slot(*[Ingredient('C', 2) for _ in range(3)])
+    from collections import Counter
+
+    left_slot = Slot(*[Ingredient('A', 1) for _ in range(1)])
+    bottom_slot = Slot(*[Ingredient('A', 1) for _ in range(1)])
+    right_slot = Slot(*[Ingredient('A', 1) for _ in range(1)])
+
+    Craft.init_slots(left_slot, bottom_slot, right_slot)
+
+
+
 
     left_slot_d = Slot(*[Ingredient('B', 1) for _ in range(2)])
     bottom_slot_d = Slot(*[Ingredient('A', 2) for _ in range(3)])
@@ -290,11 +300,13 @@ if __name__ == '__main__':
 
     # Craft.set_serum_crafting_recipe()
     #
-    Craft.init_slots(left_slot, bottom_slot, right_slot)
-    # Craft.set_daily_recipe(left_slot_d, bottom_slot_d, right_slot_d)
-    # Craft.set_serum_crafting_recipe(left_slot_d, bottom_slot_d, right_slot_d)
+
+    Craft.set_daily_recipe(left_slot_d, bottom_slot_d, right_slot_d)
+    Craft.set_serum_crafting_recipe(left_slot_d, bottom_slot_d, right_slot_d)
+
+    print(Counter([Craft.craft().res[0] for _ in range(100_000)]))
     #
     # print('Рецепт:', Craft.daily_recipe)
     # print('Мой крафтинг: ', Craft.slots)
     # print(Craft.check_recipe_matching(serum=True))
-    # # print(Craft.craft())
+
