@@ -1,6 +1,4 @@
 import tkinter as tk
-
-import config
 from items import (
     CustomCanvas,
     Inventory,
@@ -16,11 +14,17 @@ from items import (
 )
 from config import win_width, win_height, win_bg_color
 from craft.crafting import Craft
+import ctypes
 
 root = tk.Tk()
 root.geometry(f'{win_width}x{win_height}')
 root.title('dare2defi-MAC-internal')
 root['bg'] = win_bg_color
+
+try:
+    ctypes.cdll.shcore.SetProcessDpiAwareness(1)
+except OSError:
+    pass
 
 
 canvas = CustomCanvas(root, win_width, win_height)
