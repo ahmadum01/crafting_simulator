@@ -302,7 +302,7 @@ class Ingredient(InventoryBase):
         self.rarity = rarity
         self.level = level
         self.slot = None
-        self.image = ImageTk.PhotoImage(Image.open(images[self.rarity.lower()]).resize((r * 2, r * 2)))
+        self.image = ImageTk.PhotoImage(Image.open(images[self.rarity.lower() + str(self.level)]).resize((r * 2, r * 2)))
         tag = f"token{Ingredient.counter}"
         self.shape = self.canvas.create_image(x, y, image=self.image, anchor=tk.CENTER, tags=(tag,), )
         self.canvas.bind_ingredient(tag)
