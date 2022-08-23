@@ -15,5 +15,5 @@ for letter in 'ABCDE':
 
 images['serum'] = path.join(image_path, 'serum.png')
 images['empty_serum'] = path.join(image_path, 'empty_serum.png')
-print(images)
+
 
