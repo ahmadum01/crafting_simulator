@@ -7,7 +7,7 @@ ___
 2. Create virtual environment: Windows - `python -m venv venv` / Unix - `python3 -m venv venv`
 3. Activate virtual environment: Windows - `.\venv\Scripts\activate` / Unix `source venv/bin/activate`
 4. Install modules: `pip install -r requirements.txt`
-5. (Only for Unix) `sudo apt-get install python3-tk`
+5. (Only for Linux) `sudo apt-get install python3-tk`
 6. Run application: `python main.py`
 
 
