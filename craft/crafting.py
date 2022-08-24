@@ -219,9 +219,12 @@ class Craft:
         )
 
     @staticmethod
-    def generate_rand_ingredient(number: int, max_level) -> list[Ingredient]:
+    def generate_rand_ingredient(number: int, max_level=len(configs.levels), exact_level=None) -> list[Ingredient]:
         rarity = choice(configs.rarities)
-        level = choice(configs.levels[: max_level])
+        if exact_level:
+            level = exact_level
+        else:
+            level = choice(configs.levels[: max_level])
         return [Ingredient(rarity, level) for _ in range(number)]
 
     @staticmethod
@@ -241,11 +244,12 @@ class Craft:
                         return slots
         else:
             slots = []
+            level = choice(configs.levels[:len(configs.levels) - 1])
             for _ in range(3):
                 number = randrange(1, 5)
                 slots.append(
                     Slot(
-                        *Craft.generate_rand_ingredient(number, max_level=3)
+                        *Craft.generate_rand_ingredient(number, exact_level=level)
                     )
                 )
             return slots
