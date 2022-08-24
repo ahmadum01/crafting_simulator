@@ -178,7 +178,7 @@ class InventorySlot(InventoryBase):
         self.y1 = y1
         self.canvas = canvas
         self.canvas.create_rectangle(x1, y1, x2, y2, width=2, outline=COLOR_FRAME)
-        self.text = self.canvas.create_text(self.x1 + 150, self.y1 + 45, text='', font='Tahoma 14', fill=COLOR_TEXT)
+        self.text = self.canvas.create_text(self.x1 + 150, self.y1 + 45, text='', font=('Tahoma', 14, 'italic'), fill=COLOR_TEXT)
         self.flag = False
 
     def set_text(self, lvl='', rarity='', amount=''):
@@ -216,7 +216,7 @@ class CraftingSlot:
         text = ''
         if self.ingredients:
             if isinstance(self.ingredients[0], Serum):
-                text = f'Serum\n'
+                text = f'Serum\nLevel: {self.ingredients[0].level}\n'
             elif isinstance(self.ingredients[0], Ingredient):
                 text = f'Level: {self.ingredients[0].level}\n' \
                        f'Rarity: {self.ingredients[0].rarity}\n'
@@ -240,29 +240,33 @@ class CraftingSlot:
 
 
 class SerumSlot:
-    slots = []
+    slots = dict()
 
-    def __init__(self, canvas: CustomCanvas, x1, y1, x2, y2):
+    def __init__(self, canvas: CustomCanvas, level, x1, y1, x2, y2):
+        self.level = level
         self.x1 = x1
         self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
         self.r = CraftingSlot.slots[1].r
         self.canvas = canvas
         self.serums = []
         self.shape = self.canvas.create_rectangle(x1, y1, x2, y2, width=2, outline=COLOR_FRAME)
-        text_message = f'Serum\nAmount: {Serum.counter}'
-        self.text = self.canvas.create_text(self.x1 + 140, self.y1 + 50, text=text_message, font='Tahoma 14',
-                                            fill=COLOR_TEXT)
+        text_message = f'Level: {self.level}\nAmount: {len(self.serums)}'
+        self.text = self.canvas.create_text(
+            self.x1 + 140, y1 + (y2 - y1) / 2,
+            text=text_message,
+            font=('Tahoma', 13, 'italic'),
+            fill=COLOR_TEXT)
         self.image = ImageTk.PhotoImage(Image.open(images['empty_serum']).resize((self.r * 2 - 50, self.r * 2 - 50)))
-        self.empty_serum = self.canvas.create_image(self.x1 + 50, self.y1 + 50, image=self.image, anchor=tk.CENTER)
-        SerumSlot.slots.append(self)
+        self.empty_serum = self.canvas.create_image(self.x1 + 50, self.y1 + (self.y2 - self.y1) / 2, image=self.image, anchor=tk.CENTER)
+        SerumSlot.slots[self.level] = self
 
     def set_text(self):
-        self.canvas.itemconfig(self.text, text=f'Serum\nAmount: {Serum.counter}', fill=COLOR_TEXT)
+        self.canvas.itemconfig(self.text, text=f'Level: {self.level}\nAmount: {len(self.serums)}', fill=COLOR_TEXT)
 
 
 class Serum:
-    counter = 0
-
     def __init__(self, canvas: CustomCanvas, level):
         self.level = level
         self.canvas = canvas
@@ -276,14 +280,16 @@ class Serum:
             Image.open(images[f'serum_{self.level}']).resize((self.r * 2 - 50, self.r * 2 - 50))
         )
         self.shape = self.canvas.create_image(self.x, self.y, image=self.image, anchor=tk.CENTER, tags=(tag,))
-        Serum.counter += 1
 
     def move_to_slot(self):
         for elem in self.slot.ingredients:
-            self.canvas.moveto(elem.shape, SerumSlot.slots[0].x1 + 15, SerumSlot.slots[0].y1 + 15)
-            elem.slot = SerumSlot.slots[0]
-            SerumSlot.slots[0].serums.append(elem)
-        SerumSlot.slots[0].set_text()
+            self.canvas.moveto(
+                elem.shape,
+                SerumSlot.slots[elem.level].x1 + 50 - 35,
+                SerumSlot.slots[elem.level].y1 + (SerumSlot.slots[elem.level].y2 - SerumSlot.slots[elem.level].y1) / 2 - 35,
+            )
+            SerumSlot.slots[elem.level].serums.append(elem)
+            SerumSlot.slots[elem.level].set_text()
         CraftingSlot.slots[0].ingredients.clear()
         CraftingSlot.update_slots_data()
 
@@ -566,7 +572,6 @@ def craft(canvas: CustomCanvas, slots):
             print('Serum probability:', 100 - fail_chance)
     print('-' * 70, end='\n' * 2)
     crafted_element = crafting.Craft.craft()
-    print(crafted_element)
     if crafted_element.type == 'Ingredient':
         for ingredient in crafted_element.res:
             new_ingredient = Ingredient(canvas, rarity=ingredient.rarity, level=ingredient.level)

@@ -31,8 +31,8 @@ canvas = CustomCanvas(root, win_width, win_height)
 canvas.place(x=-1, y=-1)
 statement = Statement()
 
-canvas.create_text(100, 50, text='craft', fill='red', font='Tahoma 30')  # header
-canvas.create_text(500, 150, text='Laboratory', fill='red', font='Tahoma 25')  # laboratory header
+canvas.create_text(100, 50, text='craft', fill='red', font=('Tahoma', 30, 'bold'))  # header
+canvas.create_text(500, 150, text='Laboratory', fill='red', font=('Tahoma', 25, 'bold'))  # laboratory header
 inventory = Inventory(canvas, 30, 100, 350, 750)
 laboratory = Laboratory(canvas, 370, 100, win_width - 30, 750)
 
@@ -49,10 +49,10 @@ button_statement = Button(canvas, x=win_width-180, y=50, w=150, h=40, text="Stat
 
 main_slot = CraftingSlot(
     canvas,
-    x=laboratory.x1 + (laboratory.x2 - laboratory.x1) / 2,
+    x=laboratory.x1 + (laboratory.x2 - laboratory.x1) / 2 - 100,
     y=laboratory.y1 + (laboratory.y2 - laboratory.y1) / 2 - 100,
     r=100,
-    main=True
+    main=True,
 )
 
 left_slot = CraftingSlot(  # slot №1
@@ -76,13 +76,18 @@ right_slot = CraftingSlot(  # slot №3
     r=60,
 )
 
-serum_slot = SerumSlot(
-    canvas,
-    x1=win_width - 250,
-    y1=100,
-    x2=win_width - 30,
-    y2=200
-)
+
+for i in range(5):
+    SerumSlot(
+        canvas,
+        level=i + 1,
+        x1=win_width - 230,
+        y1=i * 90 + 100,
+        x2=win_width - 30,
+        y2=i * 90 + 190,
+    )
+#
+
 
 rand_daily_recipe = Craft.generate_rand_recipe()
 print('Daily recipe:', rand_daily_recipe)
@@ -109,7 +114,6 @@ ings = [
     *[('C', 3) for _ in range(30)],
     *[('D', 3) for _ in range(30)],
     *[('E', 3) for _ in range(30)],
-
 
     *[('A', 4) for _ in range(30)],
     *[('B', 4) for _ in range(30)],
