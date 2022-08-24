@@ -22,5 +22,6 @@ serum_probabilities = dict(
     E=20,
 )
 
+serum_weights = {2: 30, 3: 25, 4: 15, 5: 10}
 rarities = ['A', 'B', 'C', 'D', 'E']
 levels = list(range(1, 5))

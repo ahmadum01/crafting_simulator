@@ -40,8 +40,11 @@ class Ingredient:
 
 
 class Serum:
+    def __init__(self, level):
+        self.level = level
+
     def __repr__(self):
-        return 'Serum()'
+        return f'Serum(level={self.level})'
 
 
 class Slot:
@@ -159,8 +162,8 @@ class Craft:
         return Ingredient(rarity=new_ingredient_rarity, level=level)
 
     @staticmethod
-    def generate_serum() -> Serum:
-        return Serum()
+    # def generate_serum(fail_chance) -> Serum:
+    #     return Serum()
 
     @staticmethod
     def is_serum_crafts():
@@ -181,16 +184,21 @@ class Craft:
                                   type='message', res=[])
 
         if Craft.is_serum_crafts():
-            if Craft.is_recipe_match(serum=True):
-                return CraftingResult(message='Serum crafted success',
-                                      type='Serum',
-                                      res=[Serum() for _ in range(3)])
-            if Craft.is_fail(Craft.count_fail_chance()):
+            # serum recipe temporary disabled
+            # if Craft.is_recipe_match(serum=True):
+            #     return CraftingResult(message='Serum crafted success',
+            #                           type='Serum',
+            #                           res=[Serum() for _ in range(3)])
+            fail_chance = Craft.count_fail_chance()
+            # if fail_chance > 100:
+            #     return CraftingResult(message='Fail',
+            #                           type='message', res=[Craft.generate_serum(fail_chance)])
+            if Craft.is_fail(fail_chance):
                 return CraftingResult(message='Fail',
                                       type='message', res=[])
             return CraftingResult(message='Serum crafted success',
                                   type='Serum',
-                                  res=[Serum()])
+                                  res=[Serum(level=1)])
 
         senior_ingredient = Craft.get_senior_ingredient()
 

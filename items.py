@@ -483,8 +483,9 @@ class Statement:
                 for j, param_list in enumerate(elems_list[:-1]):
                     label_text = tk.Label(frame, text=param_list[0], fg=COLOR_TEXT_STATEMENT, bg=Statement.bg)
                     canvas = tk.Canvas(frame, width=Statement.canvas_w, height=Statement.canvas_h, bd=0)
-                    canvas.create_rectangle(0, 0, Statement.canvas_w, Statement.canvas_h / 2, fill=param_list[2])
-                    canvas.create_rectangle(0, Statement.canvas_h / 2, Statement.canvas_w, Statement.canvas_h, fill=param_list[3])
+                    canvas.create_rectangle(0, 0, Statement.canvas_w, Statement.canvas_h, fill=param_list[2])
+                    # canvas.create_rectangle(0, 0, Statement.canvas_w, Statement.canvas_h / 2, fill=param_list[2])
+                    # canvas.create_rectangle(0, Statement.canvas_h / 2, Statement.canvas_w, Statement.canvas_h, fill=param_list[3])
                     canvas.create_image(Statement.canvas_w / 2, Statement.canvas_h / 2, image=param_list[1], anchor=tk.CENTER)
                     canvas.grid(row=0, column=j, padx=20, pady=10)
                     label_text.grid(row=1, column=j, padx=20, pady=1)
@@ -524,10 +525,10 @@ class Statement:
         Statement.statement_list[-1][1].append(colors_daily_recipe.slot2.value)
         Statement.statement_list[-1][2].append(colors_daily_recipe.slot3.value)
 
-        colors_serum_recipe = crafting.Craft.check_recipe_matching(serum=True)
-        Statement.statement_list[-1][0].append(colors_serum_recipe.slot1.value)
-        Statement.statement_list[-1][1].append(colors_serum_recipe.slot2.value)
-        Statement.statement_list[-1][2].append(colors_serum_recipe.slot3.value)
+        # colors_serum_recipe = crafting.Craft.check_recipe_matching(serum=True)
+        # Statement.statement_list[-1][0].append(colors_serum_recipe.slot1.value)
+        # Statement.statement_list[-1][1].append(colors_serum_recipe.slot2.value)
+        # Statement.statement_list[-1][2].append(colors_serum_recipe.slot3.value)
 
         if crafted_element.type == 'Ingredient':
             statements[-1].append(
