@@ -12,8 +12,8 @@ image_path = path.join('src', 'images')
 images = {}
 for letter in 'ABCDE':
     images.update({f'{letter.lower()}{level}': path.join(image_path, f'{letter}{level}.png') for level in range(1, 5)})
-
-images['serum'] = path.join(image_path, 'serum.png')
+for i in range(1, 6):
+    images[f'serum_{i}'] = path.join(image_path, f'serum_{i}.png')
 images['empty_serum'] = path.join(image_path, 'empty_serum.png')
 
 

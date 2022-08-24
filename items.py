@@ -263,7 +263,8 @@ class SerumSlot:
 class Serum:
     counter = 0
 
-    def __init__(self, canvas: CustomCanvas):
+    def __init__(self, canvas: CustomCanvas, level):
+        self.level = level
         self.canvas = canvas
         self.x = CraftingSlot.slots[0].x
         self.y = CraftingSlot.slots[0].y
@@ -271,7 +272,9 @@ class Serum:
         self.slot = None
         tag = f"serum{Ingredient.counter}"
         self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.drag_stop)
-        self.image = ImageTk.PhotoImage(Image.open(images['serum']).resize((self.r * 2 - 50, self.r * 2 - 50)))
+        self.image = ImageTk.PhotoImage(
+            Image.open(images[f'serum_{self.level}']).resize((self.r * 2 - 50, self.r * 2 - 50))
+        )
         self.shape = self.canvas.create_image(self.x, self.y, image=self.image, anchor=tk.CENTER, tags=(tag,))
         Serum.counter += 1
 
@@ -555,13 +558,15 @@ def craft(canvas: CustomCanvas, slots):
     print('Fail probability was:', fail_chance)
     if crafting.Craft.is_craft_possible():
         if not crafting.Craft.is_serum_crafts():
-            print('Ingredient probabilities:', crafting.Craft.count_probability_for_mix(crafting.Craft.get_senior_ingredient()))
+            print('Ingredient probabilities:',
+                  crafting.Craft.count_probability_for_mix(crafting.Craft.get_senior_ingredient()))
             print('Serum probability:', 0)
         else:
             print('Ingredient probabilities:', {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0})
             print('Serum probability:', 100 - fail_chance)
     print('-' * 70, end='\n' * 2)
     crafted_element = crafting.Craft.craft()
+    print(crafted_element)
     if crafted_element.type == 'Ingredient':
         for ingredient in crafted_element.res:
             new_ingredient = Ingredient(canvas, rarity=ingredient.rarity, level=ingredient.level)
@@ -571,7 +576,7 @@ def craft(canvas: CustomCanvas, slots):
             InventoryBase.edit_amount(canvas, elem=new_ingredient, option=False)
     elif crafted_element.type == 'Serum':
         for _ in crafted_element.res:
-            new_serum = Serum(canvas)
+            new_serum = Serum(canvas, level=crafted_element.res[0].level)
             new_serum.slot = slots[0]
             slots[0].ingredients.append(new_serum)
     elif crafted_element.type == 'message':

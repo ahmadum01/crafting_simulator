@@ -41,7 +41,15 @@ class Ingredient:
 
 class Serum:
     def __init__(self, level):
+        if level not in configs.serum_levels:
+            raise ValueError(f'level have to be in {configs.levels}')
         self.level = level
+
+    def __eq__(self, other):
+        return self.level == other.level
+
+    def __hash__(self):
+        return hash(str(self.level))
 
     def __repr__(self):
         return f'Serum(level={self.level})'
@@ -100,14 +108,18 @@ class Craft:
         return count
 
     @staticmethod
+    def count_serum_win_chance():
+        win_probability = 0
+        for slot in Craft.slots:
+            if slot[0].level == configs.levels[-1]:
+                win_probability += configs.serum_probabilities[slot[0].rarity] * len(slot)
+        return win_probability
+
+    @staticmethod
     def count_fail_chance() -> int:
         if Craft.slots_is_not_empty():
             if Craft.is_serum_crafts():
-                fail_probability = 0
-                for slot in Craft.slots:
-                    if slot[0].level == configs.levels[-1]:
-                        fail_probability += configs.serum_probabilities[slot[0].rarity] * len(slot)
-                return max(100 - fail_probability, 0)
+                return max(100 - Craft.count_serum_win_chance(), 0)
             else:
                 senior_ingredient = Craft.get_senior_ingredient()
                 common_level_difference = 0
@@ -162,8 +174,18 @@ class Craft:
         return Ingredient(rarity=new_ingredient_rarity, level=level)
 
     @staticmethod
-    # def generate_serum(fail_chance) -> Serum:
-    #     return Serum()
+    def generate_serum(win_chance) -> Serum:
+        rest_of_probability = win_chance - 100
+
+        if not Craft.is_fail(100 - rest_of_probability * configs.serum_weights[5]):
+            return Serum(level=5)
+        if not Craft.is_fail(100 - rest_of_probability * configs.serum_weights[4]):
+            return Serum(level=4)
+        if not Craft.is_fail(100 - rest_of_probability * configs.serum_weights[3]):
+            return Serum(level=3)
+        if not Craft.is_fail(100 - rest_of_probability * configs.serum_weights[2]):
+            return Serum(level=2)
+        return Serum(level=1)
 
     @staticmethod
     def is_serum_crafts():
@@ -184,16 +206,18 @@ class Craft:
                                   type='message', res=[])
 
         if Craft.is_serum_crafts():
-            # serum recipe temporary disabled
+            # Serum recipe temporary disabled
+
             # if Craft.is_recipe_match(serum=True):
             #     return CraftingResult(message='Serum crafted success',
             #                           type='Serum',
             #                           res=[Serum() for _ in range(3)])
-            fail_chance = Craft.count_fail_chance()
-            # if fail_chance > 100:
-            #     return CraftingResult(message='Fail',
-            #                           type='message', res=[Craft.generate_serum(fail_chance)])
-            if Craft.is_fail(fail_chance):
+
+            serum_win_chance = Craft.count_serum_win_chance()
+            if serum_win_chance > 100:
+                return CraftingResult(message='Serum crafted success',
+                                      type='Serum', res=[Craft.generate_serum(serum_win_chance)])
+            if Craft.is_fail(Craft.count_fail_chance()):
                 return CraftingResult(message='Fail',
                                       type='message', res=[])
             return CraftingResult(message='Serum crafted success',
@@ -297,25 +321,25 @@ class Craft:
 if __name__ == '__main__':
     from collections import Counter
 
-    left_slot = Slot(*[Ingredient('A', 1) for _ in range(1)])
-    bottom_slot = Slot(*[Ingredient('A', 1) for _ in range(1)])
-    right_slot = Slot(*[Ingredient('A', 1) for _ in range(1)])
+    left_slot = Slot(*[Ingredient('E', 4) for _ in range(5)])
+    bottom_slot = Slot(*[Ingredient('E', 4) for _ in range(5)])
+    right_slot = Slot(*[Ingredient('E', 4) for _ in range(5)])
 
     Craft.init_slots(left_slot, bottom_slot, right_slot)
 
 
 
 
-    left_slot_d = Slot(*[Ingredient('B', 1) for _ in range(2)])
-    bottom_slot_d = Slot(*[Ingredient('A', 2) for _ in range(3)])
-    right_slot_d = Slot(*[Ingredient('C', 2) for _ in range(3)])
+    # left_slot_d = Slot(*[Ingredient('B', 1) for _ in range(2)])
+    # bottom_slot_d = Slot(*[Ingredient('A', 2) for _ in range(3)])
+    # right_slot_d = Slot(*[Ingredient('C', 2) for _ in range(3)])
 
     # Craft.set_serum_crafting_recipe()
     #
 
-    Craft.set_daily_recipe(left_slot_d, bottom_slot_d, right_slot_d)
-    Craft.set_serum_crafting_recipe(left_slot_d, bottom_slot_d, right_slot_d)
-
+    # Craft.set_daily_recipe(left_slot_d, bottom_slot_d, right_slot_d)
+    # Craft.set_serum_crafting_recipe(left_slot_d, bottom_slot_d, right_slot_d)
+    print(Craft.slots)
     print(Counter([Craft.craft().res[0] for _ in range(100_000)]))
     #
     # print('Рецепт:', Craft.daily_recipe)

@@ -22,6 +22,7 @@ serum_probabilities = dict(
     E=20,
 )
 
-serum_weights = {2: 30, 3: 25, 4: 15, 5: 10}
+serum_weights = {2: 0.5, 3: 0.25, 4: 0.15, 5: 0.1}
 rarities = ['A', 'B', 'C', 'D', 'E']
 levels = list(range(1, 5))
+serum_levels = list(range(1, 6))
