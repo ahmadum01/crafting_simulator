@@ -93,24 +93,28 @@ Craft.set_serum_crafting_recipe(*rand_serum_recipe)  # Set serum recipe
 
 ings = [
     *[('A', 1) for _ in range(30)],
-    *[('A', 2) for _ in range(30)],
-    *[('A', 3) for _ in range(30)],
-    *[('A', 4) for _ in range(30)],
     *[('B', 1) for _ in range(30)],
-    *[('B', 2) for _ in range(30)],
-    *[('B', 3) for _ in range(30)],
-    *[('B', 4) for _ in range(30)],
     *[('C', 1) for _ in range(30)],
-    *[('C', 2) for _ in range(30)],
-    *[('C', 3) for _ in range(30)],
-    *[('C', 4) for _ in range(30)],
     *[('D', 1) for _ in range(30)],
-    *[('D', 2) for _ in range(30)],
-    *[('D', 3) for _ in range(30)],
-    *[('D', 4) for _ in range(30)],
     *[('E', 1) for _ in range(30)],
+
+    *[('A', 2) for _ in range(30)],
+    *[('B', 2) for _ in range(30)],
+    *[('C', 2) for _ in range(30)],
+    *[('D', 2) for _ in range(30)],
     *[('E', 2) for _ in range(30)],
+
+    *[('A', 3) for _ in range(30)],
+    *[('B', 3) for _ in range(30)],
+    *[('C', 3) for _ in range(30)],
+    *[('D', 3) for _ in range(30)],
     *[('E', 3) for _ in range(30)],
+
+
+    *[('A', 4) for _ in range(30)],
+    *[('B', 4) for _ in range(30)],
+    *[('C', 4) for _ in range(30)],
+    *[('D', 4) for _ in range(30)],
     *[('E', 4) for _ in range(30)],
 ]
 for i, ing in enumerate(ings):
